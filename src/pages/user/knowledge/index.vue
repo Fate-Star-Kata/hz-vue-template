@@ -49,6 +49,7 @@
               class="btn btn-sm rounded-full"
               :class="selectedCategory === category ? 'btn-primary' : 'btn-outline'"
               @click="selectCategory(category)"
+              :disabled="loading"
             >
               {{ category }}
             </button>
@@ -60,7 +61,12 @@
     <!-- 文章列表 -->
     <section class="py-16">
       <div class="max-w-6xl mx-auto px-4">
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- 加载状态 -->
+        <div v-if="loading" class="flex justify-center py-12">
+          <span class="loading loading-spinner loading-lg"></span>
+        </div>
+
+        <div v-else class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <RevealMotion v-for="(article, i) in filteredArticles" :key="article.id" :delay="i * 0.08">
             <div 
               class="card bg-base-100 shadow-sm hover:shadow-md transition rounded-2xl cursor-pointer transform hover:scale-105"
@@ -78,9 +84,20 @@
                 <p class="opacity-70 text-sm line-clamp-3">{{ article.summary }}</p>
                 <div class="card-actions justify-between items-center mt-4">
                   <div class="flex gap-1">
-                    <span class="badge badge-outline badge-sm">{{ article.category }}</span>
+                    <span class="badge badge-outline badge-sm">{{ article.category_name }}</span>
                   </div>
-                  <div class="text-xs opacity-50">{{ article.date }}</div>
+                  <div class="flex items-center gap-2">
+                    <button 
+                      @click.stop="toggleLike(article.id)"
+                      class="btn btn-ghost btn-xs"
+                    >
+                      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                      </svg>
+                      {{ article.like_count || 0 }}
+                    </button>
+                    <div class="text-xs opacity-50">{{ new Date(article.created_at).toLocaleDateString() }}</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -88,13 +105,14 @@
         </div>
 
         <!-- 空状态 -->
-        <div v-if="filteredArticles.length === 0" class="text-center py-16">
+        <div v-if="!loading && filteredArticles.length === 0" class="text-center py-16">
           <RevealMotion :delay="0">
             <div class="opacity-50">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <p class="text-lg">暂无相关文章</p>
+              <p class="text-lg mb-2">暂无文章</p>
+              <p class="text-sm">{{ searchQuery ? '没有找到相关文章，请尝试其他关键词' : '该分类下暂无文章' }}</p>
             </div>
           </RevealMotion>
         </div>
@@ -112,16 +130,46 @@
           <div class="space-y-2">
             <h3 class="font-bold text-2xl">{{ selectedArticle.title }}</h3>
             <div class="flex items-center gap-4 text-sm opacity-70">
-              <span class="badge badge-outline">{{ selectedArticle.category }}</span>
-              <span>{{ selectedArticle.date }}</span>
-              <span>阅读时间: {{ selectedArticle.readTime }}</span>
+              <span class="badge badge-outline">{{ selectedArticle.category_name }}</span>
+              <span>{{ new Date(selectedArticle.created_at).toLocaleDateString() }}</span>
+              <span v-if="selectedArticle.author_name">作者: {{ selectedArticle.author_name }}</span>
+            </div>
+          </div>
+          
+          <!-- 文章统计和操作 -->
+          <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg">
+            <div class="flex items-center gap-4 text-sm">
+              <span v-if="selectedArticle.view_count">阅读: {{ selectedArticle.view_count }}</span>
+              <span>点赞: {{ selectedArticle.like_count || 0 }}</span>
+              <span v-if="selectedArticle.is_featured" class="badge badge-warning badge-sm">精选</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button 
+                @click="toggleLike(selectedArticle.id)"
+                :class="[
+                  'btn btn-sm',
+                  selectedArticle.is_liked ? 'btn-primary' : 'btn-outline btn-primary'
+                ]"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                </svg>
+                {{ selectedArticle.is_liked ? '已点赞' : '点赞' }}
+              </button>
+            </div>
+          </div>
+          
+          <!-- 标签 -->
+          <div v-if="selectedArticle.tags_list && selectedArticle.tags_list.length > 0" class="flex gap-2">
+            <div v-for="tag in selectedArticle.tags_list" :key="tag" class="badge badge-outline badge-sm">
+              {{ tag }}
             </div>
           </div>
           
           <div class="divider"></div>
           
           <div class="prose max-w-none">
-            <div v-html="selectedArticle.content"></div>
+            <div v-html="parsedContent"></div>
           </div>
         </div>
       </div>
@@ -135,6 +183,9 @@
 <script setup lang="ts">
 import { h, defineComponent, onMounted, onBeforeUnmount, ref, computed } from "vue";
 import { Motion } from "motion-v";
+import { marked } from 'marked';
+import { getKnowledgeCategories, getKnowledgeArticles, getKnowledgeArticleDetail, likeKnowledgeArticle } from '@/api/user/knowledge'
+import type { KnowledgeCategory, KnowledgeArticle, KnowledgeArticleDetail } from '@/types/factory'
 
 // RevealMotion 组件定义（复用首页的动画组件）
 type RevealProps = { delay?: number };
@@ -190,187 +241,178 @@ const RevealMotion = defineComponent<RevealProps>({
 // 响应式数据
 const searchQuery = ref('');
 const selectedCategory = ref('全部');
-const selectedArticle = ref(null);
+const selectedArticle = ref<KnowledgeArticleDetail | null>(null);
 const articleModal = ref<HTMLDialogElement | null>(null);
+const loading = ref(false);
+const currentPage = ref(1);
+const pageSize = ref(10);
+const total = ref(0);
 
-// 分类数据
-const categories = ['全部', '技术文档', '最佳实践', '教程指南', '案例分析', '工具使用'];
+// API数据
+const articles = ref<KnowledgeArticle[]>([]);
+const categoriesData = ref<KnowledgeCategory[]>([]);
 
-// 模拟文章数据
-const articles = ref([
-  {
-    id: 1,
-    title: 'Vue 3 组合式 API 完全指南',
-    summary: '深入了解 Vue 3 的组合式 API，包括 setup 函数、响应式系统和生命周期钩子的使用方法。',
-    category: '技术文档',
-    date: '2024-01-15',
-    readTime: '8分钟',
-    content: `
-      <h2>什么是组合式 API？</h2>
-      <p>组合式 API 是 Vue 3 中引入的一套新的 API，它提供了一种更灵活的方式来组织组件逻辑。</p>
-      
-      <h3>主要特性</h3>
-      <ul>
-        <li>更好的逻辑复用</li>
-        <li>更好的类型推导</li>
-        <li>更小的生产包体积</li>
-        <li>更好的 Tree-shaking 支持</li>
-      </ul>
-      
-      <h3>基本用法</h3>
-      <pre><code>import { ref, reactive, computed } from 'vue'
-
-export default {
-  setup() {
-    const count = ref(0)
-    const doubleCount = computed(() => count.value * 2)
-    
-    return {
-      count,
-      doubleCount
-    }
-  }
-}</code></pre>
-    `
-  },
-  {
-    id: 2,
-    title: 'TypeScript 最佳实践',
-    summary: '在现代前端开发中使用 TypeScript 的最佳实践，包括类型定义、接口设计和错误处理。',
-    category: '最佳实践',
-    date: '2024-01-12',
-    readTime: '12分钟',
-    content: `
-      <h2>TypeScript 最佳实践</h2>
-      <p>TypeScript 为 JavaScript 添加了静态类型检查，帮助开发者在编译时发现错误。</p>
-      
-      <h3>类型定义</h3>
-      <p>始终为函数参数和返回值定义明确的类型。</p>
-      
-      <h3>接口设计</h3>
-      <p>使用接口来定义对象的结构，提高代码的可读性和维护性。</p>
-    `
-  },
-  {
-    id: 3,
-    title: 'Tailwind CSS 响应式设计',
-    summary: '学习如何使用 Tailwind CSS 创建响应式布局，掌握断点系统和移动优先的设计理念。',
-    category: '教程指南',
-    date: '2024-01-10',
-    readTime: '6分钟',
-    content: `
-      <h2>Tailwind CSS 响应式设计</h2>
-      <p>Tailwind CSS 提供了强大的响应式设计工具。</p>
-      
-      <h3>断点系统</h3>
-      <ul>
-        <li>sm: 640px</li>
-        <li>md: 768px</li>
-        <li>lg: 1024px</li>
-        <li>xl: 1280px</li>
-      </ul>
-    `
-  },
-  {
-    id: 4,
-    title: 'DaisyUI 组件库使用指南',
-    summary: '探索 DaisyUI 组件库的强大功能，学习如何快速构建美观的用户界面。',
-    category: '工具使用',
-    date: '2024-01-08',
-    readTime: '10分钟',
-    content: `
-      <h2>DaisyUI 组件库</h2>
-      <p>DaisyUI 是基于 Tailwind CSS 的组件库，提供了丰富的预设计组件。</p>
-      
-      <h3>主要组件</h3>
-      <ul>
-        <li>按钮 (Button)</li>
-        <li>卡片 (Card)</li>
-        <li>模态框 (Modal)</li>
-        <li>导航栏 (Navbar)</li>
-      </ul>
-    `
-  },
-  {
-    id: 5,
-    title: '前端性能优化案例分析',
-    summary: '通过实际案例分析前端性能优化的方法和技巧，包括代码分割、懒加载和缓存策略。',
-    category: '案例分析',
-    date: '2024-01-05',
-    readTime: '15分钟',
-    content: `
-      <h2>前端性能优化</h2>
-      <p>性能优化是前端开发中的重要环节。</p>
-      
-      <h3>优化策略</h3>
-      <ul>
-        <li>代码分割</li>
-        <li>懒加载</li>
-        <li>缓存策略</li>
-        <li>图片优化</li>
-      </ul>
-    `
-  },
-  {
-    id: 6,
-    title: 'Git 工作流最佳实践',
-    summary: '掌握 Git 分支管理和团队协作的最佳实践，提高开发效率和代码质量。',
-    category: '最佳实践',
-    date: '2024-01-03',
-    readTime: '9分钟',
-    content: `
-      <h2>Git 工作流</h2>
-      <p>良好的 Git 工作流对团队协作至关重要。</p>
-      
-      <h3>分支策略</h3>
-      <ul>
-        <li>主分支 (main/master)</li>
-        <li>开发分支 (develop)</li>
-        <li>功能分支 (feature)</li>
-        <li>修复分支 (hotfix)</li>
-      </ul>
-    `
-  }
-]);
-
-// 计算属性：过滤文章
-const filteredArticles = computed(() => {
-  let result = articles.value;
-  
-  // 按分类过滤
-  if (selectedCategory.value !== '全部') {
-    result = result.filter(article => article.category === selectedCategory.value);
-  }
-  
-  // 按搜索关键词过滤
-  if (searchQuery.value.trim()) {
-    const query = searchQuery.value.toLowerCase();
-    result = result.filter(article => 
-      article.title.toLowerCase().includes(query) ||
-      article.summary.toLowerCase().includes(query)
-    );
-  }
-  
-  return result;
+// 分类数据（包含API数据和默认选项）
+const categories = computed(() => {
+  const apiCategories = categoriesData.value.map(cat => cat.name);
+  return ['全部', ...apiCategories];
 });
+
+
+// 加载分类数据
+const loadCategories = async () => {
+  try {
+    const response = await getKnowledgeCategories()
+    if (response.code === 200) {
+      categoriesData.value = response.data
+    }
+  } catch (error) {
+    console.error('加载分类失败:', error)
+  }
+}
+
+// 加载文章数据
+const loadArticles = async () => {
+  try {
+    loading.value = true
+    const params = {
+      page: currentPage.value,
+      page_size: pageSize.value,
+      ...(selectedCategory.value !== '全部' && {
+        category_id: categoriesData.value.find(cat => cat.name === selectedCategory.value)?.id
+      }),
+      ...(searchQuery.value.trim() && {
+        search: searchQuery.value.trim()
+      })
+    }
+    
+    const response = await getKnowledgeArticles(params)
+    if (response.code === 200) {
+      articles.value = response.data.articles
+      total.value = response.data.total
+    }
+  } catch (error) {
+    console.error('加载文章失败:', error)
+
+  } finally {
+    loading.value = false
+  }
+}
+
+// 计算属性：过滤后的文章
+  const filteredArticles = computed(() => {
+    return articles.value.filter(article => {
+      const matchesSearch = !searchQuery.value || 
+        article.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        article.summary.toLowerCase().includes(searchQuery.value.toLowerCase())
+      
+      const matchesCategory = selectedCategory.value === '全部' || 
+        article.category_name === selectedCategory.value
+      
+      return matchesSearch && matchesCategory
+    })
+  })
+
+// 格式化日期函数
+const formatDate = (dateString: string) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  })
+}
+
+  // 配置marked选项
+  marked.setOptions({
+    breaks: true,
+    gfm: true,
+    smartLists: true,
+    smartypants: false
+  })
+
+  // 计算属性：解析markdown内容
+  const parsedContent = computed(() => {
+    if (!selectedArticle.value?.content) return ''
+    try {
+      return marked(selectedArticle.value.content)
+    } catch (error) {
+      console.error('Markdown解析错误:', error)
+      return selectedArticle.value.content
+    }
+  })
 
 // 方法
 const selectCategory = (category: string) => {
   selectedCategory.value = category;
+  currentPage.value = 1;
+  loadArticles();
 };
 
 const handleSearch = () => {
-  // 搜索逻辑已在计算属性中处理
+  currentPage.value = 1;
+  loadArticles();
 };
 
-const openArticle = (article: any) => {
-  selectedArticle.value = article;
-  articleModal.value?.showModal();
+const openArticle = async (article: KnowledgeArticle) => {
+  try {
+    loading.value = true;
+    const response = await getKnowledgeArticleDetail(article.id);
+    if (response.code === 200) {
+      selectedArticle.value = response.data;
+      articleModal.value?.showModal();
+    }
+  } catch (error) {
+    console.error('加载文章详情失败:', error);
+    // 使用模拟数据作为备用
+    // 由于此页面不维护本地模拟数据，回退为最小详情结构，避免类型错误
+    selectedArticle.value = {
+      ...article,
+      content: '文章内容加载失败，请稍后重试。',
+      category: 0,
+      author: 0,
+      tags: '',
+      sort_order: 0,
+      is_liked: false
+    } as KnowledgeArticleDetail;
+    articleModal.value?.showModal();
+  } finally {
+    loading.value = false;
+  }
 };
 
 const closeModal = () => {
+  selectedArticle.value = null;
   articleModal.value?.close();
 };
+
+// 文章点赞
+const toggleLike = async (articleId: number) => {
+  try {
+    const response = await likeKnowledgeArticle(articleId);
+    if (response.code === 200) {
+      // 更新文章点赞状态
+      const article = articles.value.find(a => a.id === articleId);
+      if (article) {
+        article.like_count = response.data.like_count;
+      }
+      // 如果当前打开的是这篇文章，也更新详情
+      if (selectedArticle.value && selectedArticle.value.id === articleId) {
+        selectedArticle.value.like_count = response.data.like_count;
+        selectedArticle.value.is_liked = response.data.is_liked;
+      }
+    }
+  } catch (error) {
+    console.error('点赞失败:', error);
+  }
+};
+
+// 页面初始化
+onMounted(async () => {
+  await loadCategories();
+  await loadArticles();
+});
 </script>
 
 <style scoped>
