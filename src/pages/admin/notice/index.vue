@@ -1,5 +1,5 @@
 <template>
-  <div class="content-management-container h-full overflow-y-auto">
+  <div class="content-management-container h-full flex flex-col">
     <!-- 统计卡片 -->
     <el-card shadow="never" class="stats-card">
       <template #header>
@@ -77,7 +77,7 @@
     </el-card>
 
     <!-- 通知列表 -->
-    <el-card shadow="never" class="list-card">
+    <el-card shadow="never" class="list-card flex-1 min-h-0 flex flex-col">
       <template #header>
         <div class="list-header">
           <span class="list-title">通知列表</span>
@@ -110,8 +110,8 @@
       </div>
 
       <!-- 通知列表 -->
-      <div v-else class="table-container">
-        <el-table :data="notificationList" stripe border style="width: 100%" :loading="loading" empty-text="暂无通知数据"
+      <div v-else class="table-container flex-1 min-h-0">
+        <el-table :data="notificationList" stripe border height="100%" :loading="loading" empty-text="暂无通知数据"
           class="notification-table">
           <el-table-column prop="title" label="通知标题" min-width="200" show-overflow-tooltip>
             <template #default="{ row }">
@@ -257,7 +257,8 @@
             <!-- 指定用户选择 -->
             <el-form-item v-if="!notificationForm.notify_all" label="指定用户" prop="recipient_user_ids" class="form-item">
               <el-select v-model="notificationForm.recipient_user_ids" multiple filterable remote reserve-keyword
-                placeholder="请选择要通知的用户" :remote-method="searchUsers" :loading="userSearchLoading" class="form-select">
+                placeholder="请选择要通知的用户" :remote-method="searchUsers" :loading="userSearchLoading" class="form-select"
+                @focus="loadAllUsers" collapse-tags collapse-tags-tooltip>
                 <el-option v-for="user in userOptions" :key="user.id" :label="user.username" :value="user.id" />
               </el-select>
             </el-form-item>
@@ -290,7 +291,8 @@
           </el-form-item>
           <el-form-item v-if="!resendForm.notify_all" label="选择用户">
             <el-select v-model="resendForm.recipient_user_ids" multiple filterable remote reserve-keyword
-              placeholder="请选择要通知的用户" :remote-method="searchUsers" :loading="userSearchLoading" style="width: 100%">
+              placeholder="请选择要通知的用户" :remote-method="searchUsers" :loading="userSearchLoading" style="width: 100%"
+              @focus="loadAllUsers" collapse-tags collapse-tags-tooltip>
               <el-option v-for="user in userOptions" :key="user.id" :label="user.username" :value="user.id" />
             </el-select>
           </el-form-item>
@@ -314,7 +316,8 @@
         <el-form label-width="100px">
           <el-form-item label="选择用户">
             <el-select v-model="sendToUserForm.recipient_user_ids" multiple filterable remote reserve-keyword
-              placeholder="请选择要通知的用户" :remote-method="searchUsers" :loading="userSearchLoading" style="width: 100%">
+              placeholder="请选择要通知的用户" :remote-method="searchUsers" :loading="userSearchLoading" style="width: 100%"
+              @focus="loadAllUsers" collapse-tags collapse-tags-tooltip>
               <el-option v-for="user in userOptions" :key="user.id" :label="user.username" :value="user.id" />
             </el-select>
           </el-form-item>
@@ -534,9 +537,38 @@ const handleNotifyAllChange = (value: boolean) => {
 }
 
 // 搜索用户
+// 加载所有用户（点击选择器时触发）
+const loadAllUsers = async () => {
+  // 如果已经有用户选项，不重复加载
+  if (userOptions.value.length > 0) return
+
+  userSearchLoading.value = true
+  try {
+    const { getUsersAPI } = await import('@/api/admin/users')
+    const response = await getUsersAPI({
+      query: '', // 空查询获取所有用户
+      page: 1,
+      page_size: 100 // 加载更多用户
+    })
+
+    if (response.data && response.data.users) {
+      userOptions.value = response.data.users.map(user => ({
+        id: user.id!,
+        username: user.username
+      }))
+    }
+  } catch (error) {
+    console.error('加载用户失败:', error)
+    ElMessage.error('加载用户失败')
+  } finally {
+    userSearchLoading.value = false
+  }
+}
+
 const searchUsers = async (query: string) => {
   if (!query) {
-    userOptions.value = []
+    // 如果没有搜索词，加载所有用户
+    await loadAllUsers()
     return
   }
 
@@ -674,7 +706,7 @@ const handleResendAll = async (id: string | number) => {
     const response = await notificationApi.resendNotification({
       notification_id: Number(id),
       notify_all: true,
-      email_notification: false
+      email_notification: true
     })
 
     if (response.code === 200) {
@@ -901,6 +933,7 @@ onMounted(() => {
 .list-card {
   margin-top: 2em;
   margin-bottom: 20px;
+  min-height: 0;
 }
 
 .list-header {
@@ -921,6 +954,9 @@ onMounted(() => {
 
 .table-container {
   margin-top: 16px;
+  overflow: auto;
+  min-height: 0;
+  max-height: 500px;
 }
 
 .notification-table {

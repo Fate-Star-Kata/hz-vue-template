@@ -104,7 +104,7 @@ const iconVariants = {
 
         <!-- 主要内容 -->
         <el-main class="bg-gray-50 flex flex-col">
-          <div class="flex-1 p-6 min-h-0">
+          <div class="flex-1 p-6 min-h-0 ">
             <!-- 子路由内容 -->
             <Motion :initial="cardVariants.initial" :animate="cardVariants.animate"
               :transition="{ ...cardVariants.transition, delay: 0.2 } as any">
@@ -146,6 +146,7 @@ const iconVariants = {
 
 .el-main {
   padding: 0;
+  overflow: hidden;
   height: calc(100vh - 60px);
 }
 

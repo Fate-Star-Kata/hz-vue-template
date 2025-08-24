@@ -70,9 +70,9 @@ export const adminMenuItems: AdminHeader[] = [
   },
   {
     id: "3",
-    title: "内容管理",
-    icon: "Document",
-    path: "/admin/content",
+    title: "通知管理",
+    icon: "Bell",
+    path: "/admin/notice",
   },
   {
     id: "4",
@@ -163,6 +163,12 @@ export const adminMenuItems: AdminHeader[] = [
   },
   {
     id: "10",
+    title: "操作日志",
+    icon: "DocumentCopy",
+    path: "/admin/log",
+  },
+  {
+    id: "11",
     title: "系统配置",
     icon: "Tools",
     path: "/admin/systemConfig",
