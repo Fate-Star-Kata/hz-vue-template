@@ -19,16 +19,13 @@
           <div class="flex items-center justify-center gap-3 pt-2">
             <div class="form-control w-full max-w-md">
               <div class="join w-full">
-                <input 
-                  type="text" 
-                  placeholder="搜索文章..." 
-                  class="input input-bordered join-item flex-1" 
-                  v-model="searchQuery"
-                  @input="handleSearch"
-                />
+                <input type="text" placeholder="搜索文章..." class="input input-bordered join-item flex-1"
+                  v-model="searchQuery" @input="handleSearch" />
                 <button class="btn btn-primary join-item">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </button>
               </div>
@@ -43,14 +40,9 @@
       <div class="max-w-6xl mx-auto px-4">
         <RevealMotion :delay="0">
           <div class="flex flex-wrap justify-center gap-2">
-            <button 
-              v-for="category in categories" 
-              :key="category"
-              class="btn btn-sm rounded-full"
-              :class="selectedCategory === category ? 'btn-primary' : 'btn-outline'"
-              @click="selectCategory(category)"
-              :disabled="loading"
-            >
+            <button v-for="category in categories" :key="category" class="btn btn-sm rounded-full"
+              :class="selectedCategory === category ? 'btn-primary' : 'btn-outline'" @click="selectCategory(category)"
+              :disabled="loading">
               {{ category }}
             </button>
           </div>
@@ -68,14 +60,16 @@
 
         <div v-else class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <RevealMotion v-for="(article, i) in filteredArticles" :key="article.id" :delay="i * 0.08">
-            <div 
+            <div
               class="card bg-base-100 shadow-sm hover:shadow-md transition rounded-2xl cursor-pointer transform hover:scale-105"
-              @click="openArticle(article)"
-            >
+              @click="openArticle(article)">
               <figure class="px-6 pt-6">
-                <div class="w-full h-48 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <div
+                  class="w-full h-48 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 opacity-50" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
               </figure>
@@ -87,12 +81,11 @@
                     <span class="badge badge-outline badge-sm">{{ article.category_name }}</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <button 
-                      @click.stop="toggleLike(article.id)"
-                      class="btn btn-ghost btn-xs"
-                    >
+                    <button @click.stop="toggleLike(article.id)" class="btn btn-ghost btn-xs">
                       <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                        <path fill-rule="evenodd"
+                          d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                          clip-rule="evenodd" />
                       </svg>
                       {{ article.like_count || 0 }}
                     </button>
@@ -108,8 +101,10 @@
         <div v-if="!loading && filteredArticles.length === 0" class="text-center py-16">
           <RevealMotion :delay="0">
             <div class="opacity-50">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <p class="text-lg mb-2">暂无文章</p>
               <p class="text-sm">{{ searchQuery ? '没有找到相关文章，请尝试其他关键词' : '该分类下暂无文章' }}</p>
@@ -125,7 +120,7 @@
         <form method="dialog">
           <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         </form>
-        
+
         <div v-if="selectedArticle" class="space-y-6">
           <div class="space-y-2">
             <h3 class="font-bold text-2xl">{{ selectedArticle.title }}</h3>
@@ -135,7 +130,7 @@
               <span v-if="selectedArticle.author_name">作者: {{ selectedArticle.author_name }}</span>
             </div>
           </div>
-          
+
           <!-- 文章统计和操作 -->
           <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg">
             <div class="flex items-center gap-4 text-sm">
@@ -144,30 +139,29 @@
               <span v-if="selectedArticle.is_featured" class="badge badge-warning badge-sm">精选</span>
             </div>
             <div class="flex items-center gap-2">
-              <button 
-                @click="toggleLike(selectedArticle.id)"
-                :class="[
-                  'btn btn-sm',
-                  selectedArticle.is_liked ? 'btn-primary' : 'btn-outline btn-primary'
-                ]"
-              >
+              <button @click="toggleLike(selectedArticle.id)" :class="[
+                'btn btn-sm',
+                selectedArticle.is_liked ? 'btn-primary' : 'btn-outline btn-primary'
+              ]">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                  <path fill-rule="evenodd"
+                    d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                    clip-rule="evenodd" />
                 </svg>
                 {{ selectedArticle.is_liked ? '已点赞' : '点赞' }}
               </button>
             </div>
           </div>
-          
+
           <!-- 标签 -->
           <div v-if="selectedArticle.tags_list && selectedArticle.tags_list.length > 0" class="flex gap-2">
             <div v-for="tag in selectedArticle.tags_list" :key="tag" class="badge badge-outline badge-sm">
               {{ tag }}
             </div>
           </div>
-          
+
           <div class="divider"></div>
-          
+
           <div class="prose max-w-none">
             <div v-html="parsedContent"></div>
           </div>
@@ -285,7 +279,7 @@ const loadArticles = async () => {
         search: searchQuery.value.trim()
       })
     }
-    
+
     const response = await getKnowledgeArticles(params)
     if (response.code === 200) {
       articles.value = response.data.articles
@@ -302,13 +296,13 @@ const loadArticles = async () => {
 // 计算属性：过滤后的文章
   const filteredArticles = computed(() => {
     return articles.value.filter(article => {
-      const matchesSearch = !searchQuery.value || 
+      const matchesSearch = !searchQuery.value ||
         article.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         article.summary.toLowerCase().includes(searchQuery.value.toLowerCase())
-      
-      const matchesCategory = selectedCategory.value === '全部' || 
+
+      const matchesCategory = selectedCategory.value === '全部' ||
         article.category_name === selectedCategory.value
-      
+
       return matchesSearch && matchesCategory
     })
   })

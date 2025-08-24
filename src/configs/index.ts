@@ -75,17 +75,10 @@ export const adminMenuItems: AdminHeader[] = [
     // ]
   },
   {
-    id: '3',
-    title: '内容管理',
-    icon: 'Document',
-    path: '/admin/content',
     id: "3",
     title: "内容管理",
     icon: "Document",
     path: "/admin/content",
-    // children: [
-    //   { id: '3-1', title: '通知管理', icon: 'Bell', path: '/admin/content/' },
-    // ]
   },
   {
     id: "4",

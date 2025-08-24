@@ -72,7 +72,7 @@ export function getNotificationDetail(notificationId: number): Promise<Notificat
 // 标记通知已读
 export function markNotificationRead(data: MarkReadRequest): Promise<MarkReadResponse> {
   return serviceAxios({
-    url: '/hzadmin/client/notification/read/`',
+    url: '/hzadmin/client/notification/read/',
     method: 'post',
     data
   })
@@ -96,11 +96,5 @@ export function getUnreadCount(): Promise<{ code: number; msg: string; data: { u
       page_size: 1,
       is_read: false
     }
-  }).then(response => ({
-    code: response.code,
-    msg: response.msg,
-    data: {
-      unread_count: response.data.unread_count || 0
-    }
-  }))
+  })
 }
