@@ -1,6 +1,7 @@
 // src/router/index.ts
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { routes } from 'vue-router/auto-routes'
+import adminIndex from "@/pages/admin/index.vue";
 
 type AutoRoute = {
   path?: string

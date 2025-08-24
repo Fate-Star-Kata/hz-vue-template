@@ -8,47 +8,45 @@ const FileUploadUrl: string = (import.meta.env.VITE_FILE_UPLOAD_URL as string)
 // 主菜单配置（用于Header组件）
 export const defaultMenuItems: MenuItem[] = [
   {
-    id: 'home',
-    label: '首页',
-    href: '/',
+    id: "home",
+    label: "首页",
+    href: "/",
     icon: null,
   },
   {
-    id: 'dashboard',
-    label: 'menu.dashboard',
-    href: '/user/dashboard',
+    id: "dashboard",
+    label: "menu.dashboard",
+    href: "/user/dashboard",
 
     icon: null,
     hide: true,
   },
   {
-    id: 'stats',
-    label: 'menu.stats',
-    href: '/user/stats',
+    id: "stats",
+    label: "menu.stats",
+    href: "/user/stats",
 
     icon: null,
   },
   {
-    id: 'knowledge',
-    label: '历史',
-    href: '/user/knowledge',
+    id: "knowledge",
+    label: "知识库",
+    href: "/user/knowledge",
     icon: null,
   },
   {
-    id: 'knowledge',
-    label: '通知',
-    href: '/user/notifications',
-
+    id: "history",
+    label: "历史",
+    href: "/user/history",
     icon: null,
   },
   {
-    id: 'system',
-    label: '系统监控',
-    href: '/user/system_film',
+    id: "system",
+    label: "系统监控",
+    href: "/user/system_film",
 
     icon: null,
-
-  }
+  },
   // {
   //   id: 'system',
   //   label: 'menu.system',
@@ -185,12 +183,12 @@ export const defaultMenuItems: MenuItem[] = [
   //   icon: null,
   // },
   // {
-  //   id: 'admin',
-  //   label: 'menu.admin',
-  //   href: '/admin',
+  //   id: "admin",
+  //   label: "menu.admin",
+  //   href: "/admin",
   //   icon: null,
   // },
-]
+];
 
 // 管理后台菜单配置
 export const adminMenuItems: AdminHeader[] = [
