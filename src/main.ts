@@ -3,8 +3,6 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 // 导入Element Plus
 import ElementPlus from 'element-plus'
 import { createApp } from 'vue'
-// 导入Motion动画库
-import { motion, AnimatePresence } from 'motion-v'
 
 // 导入i18n配置
 import i18n, { setupI18n } from '@/i18n'
@@ -58,10 +56,17 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(router)
 
 // 初始化i18n并挂载应用
-setupI18n().then(() => {
-  app.mount('#app')
-}).catch((error) => {
-  console.error('Failed to setup i18n:', error)
-  // 即使i18n初始化失败，也要挂载应用
-  app.mount('#app')
-})
+setupI18n()
+  .then(() => {
+    return router.isReady() // ✅ 等路由准备好
+  })
+  .then(() => {
+    app.mount('#app')
+  })
+  .catch((error) => {
+    console.error('Failed to setup i18n:', error)
+    // 即使i18n初始化失败，也等路由准备好再挂载
+    router.isReady().then(() => {
+      app.mount('#app')
+    })
+  })
