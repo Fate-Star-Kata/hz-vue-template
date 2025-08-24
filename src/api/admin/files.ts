@@ -9,7 +9,7 @@ import type {
 
 // 获取用户文件列表
 export const getUserFiles = (params: FileListRequest): Promise<FileListResponse> => {
-  return serviceAxios.get('/hzadmin/client/public/user_files', { params })
+  return serviceAxios.get('/hzadmin/client/public/user_files/', { params })
 }
 
 // 获取用户文件详情
@@ -24,7 +24,7 @@ export const deleteUserFiles = (data: DeleteFilesRequest): Promise<DeleteFilesRe
 
 // 文件上传接口地址（用于 el-upload 组件）
 export const getUploadUrl = (): string => {
-  return `${import.meta.env.VITE_API_BASE_URL}/hzadmin/client/public/upload_file/`
+  return `${import.meta.env.VITE_API_BASE_URL}/hzadmin/client/public/upload/`
 }
 
 // 获取文件访问URL

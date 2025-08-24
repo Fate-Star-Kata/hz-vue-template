@@ -47,7 +47,7 @@
           <!-- 内容区 -->
           <div class="modal-content">
             <FileUpload :max-size="maxSize" :accept="accept" :multiple="multiple" @upload="handleFileUpload"
-              @success="handleUploadSuccess" @error="handleUploadError" />
+              @success="handleUploadSuccess" @error="handleUploadError" @progress="handleUploadProgress" />
           </div>
 
           <!-- 底部信息 -->
@@ -113,6 +113,7 @@ interface Emits {
   (e: 'upload', files: File[]): void
   (e: 'success', response: any): void
   (e: 'error', error: any): void
+  (e: 'progress', progress: any): void
 }
 
 const emit = defineEmits<Emits>()
@@ -147,6 +148,10 @@ const handleUploadSuccess = (response: any) => {
 
 const handleUploadError = (error: any) => {
   emit('error', error)
+}
+
+const handleUploadProgress = (progress: any) => {
+  emit('progress', progress)
 }
 
 // 格式化文件大小
