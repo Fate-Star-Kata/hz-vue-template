@@ -22,29 +22,6 @@ const cardVariants = {
   transition: { duration: 0.4, ease: ['easeOut'] }
 }
 
-// 表单数据
-const profileForm = reactive({
-  username: userInfo.value?.username || '',
-  email: userInfo.value?.email || '',
-  phone: userInfo.value?.phone || '',
-  role: userInfo.value?.role || '',
-  avatar: getUserAvatar.value || ''
-})
-
-// 监听用户信息变化，同步到表单
-watch(userInfo, (newUserInfo) => {
-  if (newUserInfo) {
-    profileForm.username = newUserInfo.username || ''
-    profileForm.email = newUserInfo.email || ''
-    profileForm.phone = newUserInfo.phone || ''
-    profileForm.role = newUserInfo.role || ''
-  }
-}, { immediate: true })
-
-watch(getUserAvatar, (newAvatar) => {
-  profileForm.avatar = newAvatar || ''
-}, { immediate: true })
-
 // 保存状态
 const saving = ref(false)
 
@@ -56,45 +33,34 @@ const avatarDialogVisible = ref(false)
 async function saveProfile() {
   try {
     saving.value = true
-    
-    // 验证表单数据
-    if (!profileForm.username.trim()) {
+
+    if (!userInfo.value) {
+      ElMessage.error('用户信息不存在')
+      return
+    }
+
+    if (!userInfo.value.username?.trim()) {
       ElMessage.error('用户名不能为空')
       return
     }
-    
-    if (profileForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileForm.email)) {
+
+    if (userInfo.value.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userInfo.value.email)) {
       ElMessage.error('请输入有效的邮箱地址')
       return
     }
-    
-    if (profileForm.phone && !/^1[3-9]\d{9}$/.test(profileForm.phone)) {
+
+    if (userInfo.value.phone && !/^1[3-9]\d{9}$/.test(userInfo.value.phone)) {
       ElMessage.error('请输入有效的手机号码')
       return
     }
-    
-    // 模拟API调用保存用户信息 - 添加随机失败模拟真实场景
+
     await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // 模拟90%成功率
-        if (Math.random() > 0.1) {
-          resolve(true)
-        } else {
-          reject(new Error('网络连接失败'))
-        }
-      }, 1000)
+      setTimeout(() => (Math.random() > 0.1 ? resolve(true) : reject(new Error('网络连接失败'))), 1000)
     })
-    
-    // 更新用户store中的信息
-    await userStore.updateUserInfo({
-      username: profileForm.username,
-      email: profileForm.email,
-      phone: profileForm.phone
-    })
-    
+
+    await userStore.setUserInfo(userInfo.value)
     ElMessage.success('个人信息保存成功')
-  } catch (error) {
-    console.error('保存个人信息失败:', error)
+  } catch (error: any) {
     ElMessage.error(`保存失败：${error.message || '请检查网络连接后重试'}`)
   } finally {
     saving.value = false
@@ -103,7 +69,9 @@ async function saveProfile() {
 
 // 头像上传处理
 const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
-  profileForm.avatar = URL.createObjectURL(uploadFile.raw!)
+  if (userInfo.value) {
+    userInfo.value.avatar = URL.createObjectURL(uploadFile.raw!)
+  }
   avatarDialogVisible.value = false
   ElMessage.success('头像上传成功')
 }
@@ -129,7 +97,11 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
 const customAvatarUpload: UploadProps['httpRequest'] = async (options) => {
   try {
     const { file } = options
-    
+
+    if (!userInfo.value) {
+      throw new Error('用户信息不存在')
+    }
+
     // 模拟上传过程 - 添加随机失败模拟真实场景
     await new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -141,29 +113,27 @@ const customAvatarUpload: UploadProps['httpRequest'] = async (options) => {
         }
       }, 1500)
     })
-    
+
     // 上传成功，更新头像
-    profileForm.avatar = URL.createObjectURL(file)
-    
+    userInfo.value.avatar = URL.createObjectURL(file)
+
     // 同时更新用户store中的头像信息
-    await userStore.updateUserInfo({
-      avatar: profileForm.avatar
-    })
-    
+    await userStore.setUserInfo(userInfo.value)
+
     avatarDialogVisible.value = false
     ElMessage.success('头像上传成功')
-    
+
     // 调用成功回调
     options.onSuccess?.({
-      url: profileForm.avatar
+      url: userInfo.value.avatar
     })
-    
-  } catch (error) {
+
+  } catch (error: any) {
     console.error('头像上传失败:', error)
     ElMessage.error(`头像上传失败：${error.message || '请检查网络连接后重试'}`)
-    
+
     // 调用失败回调
-    options.onError?.(error as Error)
+    options.onError?.(error)
   }
 }
 
@@ -183,10 +153,12 @@ function resetForm() {
       type: 'warning',
     }
   ).then(() => {
-    profileForm.username = userInfo.value?.username || ''
-    profileForm.email = userInfo.value?.email || ''
-    profileForm.phone = userInfo.value?.phone || ''
-    profileForm.avatar = getUserAvatar.value || ''
+    if (userInfo.value) {
+      userInfo.value.username = userInfo.value.username || ''
+      userInfo.value.email = userInfo.value.email || ''
+      userInfo.value.phone = userInfo.value.phone || ''
+      userInfo.value.avatar = getUserAvatar.value || ''
+    }
     ElMessage.success('表单已重置')
   })
 }
@@ -206,7 +178,7 @@ function resetForm() {
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- 左侧个人信息卡片 -->
           <!-- @vue-ignore -->
-          <Motion :initial="cardVariants.initial" :animate="cardVariants.animate" 
+          <Motion :initial="cardVariants.initial" :animate="cardVariants.animate"
             :transition="{ ...cardVariants.transition, delay: 0.1 }">
             <el-card class="profile-card">
               <template #header>
@@ -217,25 +189,25 @@ function resetForm() {
                   <span class="font-medium">基本信息</span>
                 </div>
               </template>
-              
+
               <div class="text-center mb-6">
-                <el-avatar :size="80" :src="profileForm.avatar" class="mb-4" />
-                <h3 class="text-lg font-medium text-gray-900">{{ profileForm.username }}</h3>
-                <p class="text-gray-500">{{ profileForm.role }}</p>
+                <el-avatar :size="80" :src="userInfo?.avatar" class="mb-4" />
+                <h3 class="text-lg font-medium text-gray-900">{{ userInfo?.username || '未知用户' }}</h3>
+                <p class="text-gray-500">{{ userInfo?.role || '未设置角色' }}</p>
               </div>
-              
+
               <div class="space-y-3">
                 <div class="flex items-center text-sm">
                   <el-icon class="mr-2 text-gray-400">
                     <Message />
                   </el-icon>
-                  <span class="text-gray-600">{{ profileForm.email || '未设置邮箱' }}</span>
+                  <span class="text-gray-600">{{ userInfo?.email || '未设置邮箱' }}</span>
                 </div>
                 <div class="flex items-center text-sm">
                   <el-icon class="mr-2 text-gray-400">
                     <Phone />
                   </el-icon>
-                  <span class="text-gray-600">{{ profileForm.phone || '未设置手机号' }}</span>
+                  <span class="text-gray-600">{{ userInfo?.phone || '未设置手机号' }}</span>
                 </div>
               </div>
             </el-card>
@@ -244,48 +216,44 @@ function resetForm() {
           <!-- 右侧编辑表单 -->
           <div class="lg:col-span-2">
             <!-- @vue-ignore -->
-            <Motion :initial="cardVariants.initial" :animate="cardVariants.animate" 
+            <Motion :initial="cardVariants.initial" :animate="cardVariants.animate"
               :transition="{ ...cardVariants.transition, delay: 0.2 }">
               <el-card>
                 <template #header>
                   <div class="flex items-center justify-between">
-                      <div class="flex items-center">
-                        <el-icon class="mr-2 text-green-500">
-                          <Edit />
-                        </el-icon>
-                        <span class="font-medium">编辑信息</span>
-                      </div>
-                      <div class="flex space-x-2">
-                        <el-button @click="resetForm" :disabled="saving">
-                          重置
-                        </el-button>
-                        <el-button type="primary" @click="saveProfile" :loading="saving">
-                          {{ saving ? '保存中...' : '保存更改' }}
-                        </el-button>
-                      </div>
+                    <div class="flex items-center">
+                      <el-icon class="mr-2 text-green-500">
+                        <Edit />
+                      </el-icon>
+                      <span class="font-medium">编辑信息</span>
                     </div>
+                    <div class="flex space-x-2">
+                      <el-button @click="resetForm" :disabled="saving">
+                        重置
+                      </el-button>
+                      <el-button type="primary" @click="saveProfile" :loading="saving">
+                        {{ saving ? '保存中...' : '保存更改' }}
+                      </el-button>
+                    </div>
+                  </div>
                 </template>
-                
-                <el-form :model="profileForm" label-width="80px" class="profile-form">
+
+                <el-form :model="userInfo" label-width="80px" v-if="userInfo">
                   <el-form-item label="用户名">
-                    <el-input v-model="profileForm.username" placeholder="请输入用户名" />
+                    <el-input v-model="userInfo.username" />
                   </el-form-item>
-                  
+
                   <el-form-item label="邮箱">
-                    <el-input v-model="profileForm.email" placeholder="请输入邮箱地址" type="email" />
+                    <el-input v-model="userInfo.email" type="email" />
                   </el-form-item>
-                  
+
                   <el-form-item label="手机号">
-                    <el-input v-model="profileForm.phone" placeholder="请输入手机号" />
+                    <el-input v-model="userInfo.phone" />
                   </el-form-item>
-                  
-                  <!-- <el-form-item label="角色">
-                    <el-input v-model="profileForm.role" disabled />
-                  </el-form-item>
-                   -->
+
                   <el-form-item label="头像">
                     <div class="flex items-center space-x-4">
-                      <el-avatar :size="40" :src="profileForm.avatar" />
+                      <el-avatar :size="40" :src="userInfo.avatar" />
                       <el-button size="small" @click="openAvatarDialog">
                         <el-icon class="mr-1">
                           <Plus />
@@ -295,31 +263,27 @@ function resetForm() {
                     </div>
                   </el-form-item>
                 </el-form>
+                <div v-else class="text-center py-8 text-gray-500">
+                  用户信息加载中...
+                </div>
               </el-card>
             </Motion>
           </div>
         </div>
       </div>
     </Motion>
-    
+
     <!-- 头像上传对话框 -->
     <el-dialog v-model="avatarDialogVisible" title="更换头像" width="400px" center>
       <div class="text-center">
         <div class="mb-4">
-          <el-avatar :size="100" :src="profileForm.avatar" class="mb-4" />
+          <el-avatar :size="100" :src="userInfo?.avatar" class="mb-4" />
           <p class="text-gray-600 text-sm">当前头像</p>
         </div>
-        
-        <el-upload
-          class="avatar-uploader"
-          :http-request="customAvatarUpload"
-          :show-file-list="false"
-          :on-success="handleAvatarSuccess"
-          :on-error="handleAvatarError"
-          :before-upload="beforeAvatarUpload"
-          accept="image/*"
-          drag
-        >
+
+        <el-upload class="avatar-uploader" :http-request="customAvatarUpload" :show-file-list="false"
+          :on-success="handleAvatarSuccess" :on-error="handleAvatarError" :before-upload="beforeAvatarUpload"
+          accept="image/*" drag>
           <div class="upload-area">
             <el-icon class="upload-icon">
               <Plus />
@@ -331,7 +295,7 @@ function resetForm() {
           </div>
         </el-upload>
       </div>
-      
+
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="avatarDialogVisible = false">取消</el-button>

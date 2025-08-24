@@ -29,6 +29,9 @@ export interface UserInfoNoToken {
   user_id: number
   username: string
   avatar?: string | null
+  email?: string | null
+  phone?: string | null,
+  role?: string | null
 }
 
 // 登录请求参数类型

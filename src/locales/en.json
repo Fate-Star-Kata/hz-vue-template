@@ -46,9 +46,12 @@
     "content": "Content Management",
     "articles": "Articles",
     "categories": "Categories",
-    "admin":"admin",
+    "admin": "admin",
     "stats": "stats",
-    "knowledge": "Knowledge Base"
+    "websocket": "websocket",
+    "knowledge": "Knowledge Base",
+    "templates": "Templates",
+    "index": "index"
   },
   "form": {
     "username": "Username",

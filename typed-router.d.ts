@@ -32,7 +32,12 @@ declare module 'vue-router/auto-routes' {
     '/admin/userManage/EditUserDialog': RouteRecordInfo<'/admin/userManage/EditUserDialog', '/admin/userManage/EditUserDialog', Record<never, never>, Record<never, never>>,
     '/auth/login/': RouteRecordInfo<'/auth/login/', '/auth/login', Record<never, never>, Record<never, never>>,
     '/auth/Register/': RouteRecordInfo<'/auth/Register/', '/auth/Register', Record<never, never>, Record<never, never>>,
-    '/motion-demo': RouteRecordInfo<'/motion-demo', '/motion-demo', Record<never, never>, Record<never, never>>,
+    '/templates/': RouteRecordInfo<'/templates/', '/templates', Record<never, never>, Record<never, never>>,
+    '/templates/analytics': RouteRecordInfo<'/templates/analytics', '/templates/analytics', Record<never, never>, Record<never, never>>,
+    '/templates/dashboard': RouteRecordInfo<'/templates/dashboard', '/templates/dashboard', Record<never, never>, Record<never, never>>,
+    '/templates/knowledge': RouteRecordInfo<'/templates/knowledge', '/templates/knowledge', Record<never, never>, Record<never, never>>,
+    '/templates/stats': RouteRecordInfo<'/templates/stats', '/templates/stats', Record<never, never>, Record<never, never>>,
+    '/templates/websocket': RouteRecordInfo<'/templates/websocket', '/templates/websocket', Record<never, never>, Record<never, never>>,
     '/user/history/': RouteRecordInfo<'/user/history/', '/user/history', Record<never, never>, Record<never, never>>,
     '/user/knowledge/': RouteRecordInfo<'/user/knowledge/', '/user/knowledge', Record<never, never>, Record<never, never>>,
     '/user/notifications/': RouteRecordInfo<'/user/notifications/', '/user/notifications', Record<never, never>, Record<never, never>>,
@@ -108,8 +113,28 @@ declare module 'vue-router/auto-routes' {
       routes: '/auth/Register/'
       views: never
     }
-    'src/pages/motion-demo.vue': {
-      routes: '/motion-demo'
+    'src/pages/templates/index.vue': {
+      routes: '/templates/'
+      views: never
+    }
+    'src/pages/templates/analytics.vue': {
+      routes: '/templates/analytics'
+      views: never
+    }
+    'src/pages/templates/dashboard.vue': {
+      routes: '/templates/dashboard'
+      views: never
+    }
+    'src/pages/templates/knowledge.vue': {
+      routes: '/templates/knowledge'
+      views: never
+    }
+    'src/pages/templates/stats.vue': {
+      routes: '/templates/stats'
+      views: never
+    }
+    'src/pages/templates/websocket.vue': {
+      routes: '/templates/websocket'
       views: never
     }
     'src/pages/user/history/index.vue': {

@@ -46,9 +46,12 @@
     "content": "コンテンツ管理",
     "articles": "記事管理",
     "categories": "カテゴリ管理",
-    "admin":"管理",
+    "admin": "管理",
     "stats": "統計",
-    "knowledge": "ナレッジベース"
+    "websocket": "WebSocket",
+    "knowledge": "ナレッジベース",
+    "templates": "テンプレート",
+    "index": "インデックス"
   },
   "form": {
     "username": "ユーザー名",

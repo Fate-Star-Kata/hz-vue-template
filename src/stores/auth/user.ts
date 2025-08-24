@@ -17,19 +17,6 @@ export const useUserStore = defineStore('user', () => {
     userInfo.value = info
   }
 
-  // 更新用户信息
-  const updateUserInfo = async (updates: Partial<UserInfoNoToken>): Promise<void> => {
-    if (userInfo.value) {
-      // 合并更新的字段到现有用户信息
-      userInfo.value = {
-        ...userInfo.value,
-        ...updates
-      }
-      
-      // 这里可以添加API调用来同步到服务器
-      // await api.updateUserProfile(updates)
-    }
-  }
   // 获取用户头像
   const getUserAvatar = computed(() => {
     // 如果用户有自定义头像，直接返回
@@ -62,7 +49,6 @@ export const useUserStore = defineStore('user', () => {
     userInfo,
     getUserInfo,
     setUserInfo,
-    updateUserInfo,
     getUserAvatar,
   }
 }, {
