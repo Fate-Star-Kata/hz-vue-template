@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { svgToBase64 } from '@/utils/tools'
-import type {UserInfoNoToken} from "types/apis/auth.ts";
+import type { UserInfoNoToken } from '@/types/apis/auth'
 
 export const useUserStore = defineStore('user', () => {
   // 用户信息对象

@@ -146,7 +146,6 @@ const iconVariants = {
 
 .el-main {
   padding: 0;
-  overflow: hidden;
   height: calc(100vh - 60px);
 }
 

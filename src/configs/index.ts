@@ -33,14 +33,8 @@ export const defaultMenuItems: MenuItem[] = [
   },
   {
     id: 'knowledge',
-    label: '历史',
+    label: '知识库',
     href: '/user/knowledge',
-    icon: null,
-  },
-  {
-    id: 'knowledge',
-    label: '通知',
-    href: '/user/notifications',
     icon: null,
   },
   {

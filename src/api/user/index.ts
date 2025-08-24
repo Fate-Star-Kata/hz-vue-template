@@ -1,4 +1,4 @@
-import type { CaptchaResponse, LoginReq, LoginResNoToken, RegisterRequest, RegisterResponse, UserInfo } from '@/types/apis/auth'
+import type { CaptchaResponse, LoginReq, LoginResNoToken, RegisterRequest, RegisterResponse, UserInfo, UserDetailInfo } from '@/types/apis/auth'
 import serviceAxios from '@/http'
 
 export function getUserInfo(query: UserInfo) {
@@ -23,11 +23,7 @@ export function getCurrentUserInfo(): Promise<{
     is_staff: boolean
     is_superuser: boolean
     date_joined: string
-    user_info: {
-      avatar: string
-      phone: string
-      bio: string
-    }
+    user_info: UserDetailInfo
     login_info: {
       login_time: string
       ip: string

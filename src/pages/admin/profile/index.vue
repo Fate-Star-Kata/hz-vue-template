@@ -1,13 +1,46 @@
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, onMounted } from 'vue'
 import { Motion } from 'motion-v'
 import { useUserStore } from '@/stores/auth/user'
 import { storeToRefs } from 'pinia'
-import { ElMessage, ElMessageBox, type UploadProps, type UploadUserFile } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { User, Message, Edit, Phone, Link, Location, Calendar, Male, Female } from '@element-plus/icons-vue'
+import { getCurrentUserInfo } from '@/api/user/index'
+import { updateUserInfo } from '@/api/user/userinfo'
+import type { UpdateUserInfoRequest } from '@/types/factory'
 
 const userStore = useUserStore()
 const { userInfo, getUserAvatar } = storeToRefs(userStore)
+
+// 确保userInfo初始化
+if (!userInfo.value) {
+  userInfo.value = {
+    ip: '',
+    login_time: new Date(),
+    user_id: 0,
+    username: '',
+    avatar: null,
+    email: null,
+    phone: null,
+    role: null,
+    id: 0,
+    first_name: '',
+    last_name: '',
+    is_active: true,
+    user_info: {
+      avatar: '',
+      phone: '',
+      wechat: '',
+      qq: '',
+      weibo: '',
+      personal_site: '',
+      bio: '',
+      address: '',
+      birthday: '',
+      gender: 'other'
+    }
+  }
+}
 
 // 动画配置
 const pageVariants = {
@@ -23,11 +56,47 @@ const cardVariants = {
 }
 
 // 保存状态
+const loading = ref(false)
 const saving = ref(false)
 
-// 头像上传相关
-const avatarFileList = ref<UploadUserFile[]>([])
-const avatarDialogVisible = ref(false)
+// 初始化用户详细信息
+const initUserInfo = () => {
+  if (userInfo.value && !userInfo.value.user_info) {
+    userInfo.value.user_info = {
+      avatar: '',
+      phone: '',
+      wechat: '',
+      qq: '',
+      weibo: '',
+      personal_site: '',
+      bio: '',
+      address: '',
+      birthday: '',
+      gender: 'other'
+    }
+  }
+}
+
+// 获取用户信息
+const fetchUserInfo = async () => {
+  loading.value = true
+  try {
+    const response = await getCurrentUserInfo()
+    if (response.code === 200) {
+      userInfo.value = response.data
+      initUserInfo() // 初始化用户详细信息
+    } else {
+      ElMessage.error(response.msg || '获取用户信息失败')
+    }
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+    ElMessage.error('获取用户信息失败，请稍后重试')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 头像上传相关已移除
 
 // 保存个人信息
 async function saveProfile() {
@@ -49,17 +118,37 @@ async function saveProfile() {
       return
     }
 
-    if (userInfo.value.phone && !/^1[3-9]\d{9}$/.test(userInfo.value.phone)) {
-      ElMessage.error('请输入有效的手机号码')
-      return
+    // 构造更新请求数据
+    const updateData: UpdateUserInfoRequest = {
+      id: userInfo.value.id as number,
+      username: userInfo.value.username,
+      email: userInfo.value.email || '',
+      first_name: userInfo.value.first_name || '',
+      last_name: userInfo.value.last_name || '',
+      is_active: userInfo.value.is_active as boolean,
+      user_info: {
+        avatar: userInfo.value.user_info?.avatar || '',
+        phone: userInfo.value.user_info?.phone || '',
+        wechat: userInfo.value.user_info?.wechat || '',
+        qq: userInfo.value.user_info?.qq || '',
+        weibo: userInfo.value.user_info?.weibo || '',
+        personal_site: userInfo.value.user_info?.personal_site || '',
+        bio: userInfo.value.user_info?.bio || '',
+        address: userInfo.value.user_info?.address || '',
+        birthday: userInfo.value.user_info?.birthday || '',
+        gender: userInfo.value.user_info?.gender || 'other'
+      }
     }
 
-    await new Promise((resolve, reject) => {
-      setTimeout(() => (Math.random() > 0.1 ? resolve(true) : reject(new Error('网络连接失败'))), 1000)
-    })
+    // 调用更新用户信息API
+    const response = await updateUserInfo(updateData)
 
-    await userStore.setUserInfo(userInfo.value)
-    ElMessage.success('个人信息保存成功')
+    if (response.code === 200) {
+      await userStore.setUserInfo(userInfo.value)
+      ElMessage.success('个人信息保存成功')
+    } else {
+      ElMessage.error(response.msg || '保存失败，请稍后重试')
+    }
   } catch (error: any) {
     ElMessage.error(`保存失败：${error.message || '请检查网络连接后重试'}`)
   } finally {
@@ -67,80 +156,7 @@ async function saveProfile() {
   }
 }
 
-// 头像上传处理
-const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
-  if (userInfo.value) {
-    userInfo.value.avatar = URL.createObjectURL(uploadFile.raw!)
-  }
-  avatarDialogVisible.value = false
-  ElMessage.success('头像上传成功')
-}
-
-const handleAvatarError: UploadProps['onError'] = (error) => {
-  console.error('头像上传失败:', error)
-  ElMessage.error(`头像上传失败：${error.message || '请检查网络连接后重试'}`)
-}
-
-const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
-  if (!['image/jpeg', 'image/png', 'image/gif'].includes(rawFile.type)) {
-    ElMessage.error('头像只能是 JPG/PNG/GIF 格式!')
-    return false
-  }
-  if (rawFile.size / 1024 / 1024 > 2) {
-    ElMessage.error('头像大小不能超过 2MB!')
-    return false
-  }
-  return true
-}
-
-// 自定义头像上传处理
-const customAvatarUpload: UploadProps['httpRequest'] = async (options) => {
-  try {
-    const { file } = options
-
-    if (!userInfo.value) {
-      throw new Error('用户信息不存在')
-    }
-
-    // 模拟上传过程 - 添加随机失败模拟真实场景
-    await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // 模拟85%成功率
-        if (Math.random() > 0.15) {
-          resolve(true)
-        } else {
-          reject(new Error('上传服务器连接失败'))
-        }
-      }, 1500)
-    })
-
-    // 上传成功，更新头像
-    userInfo.value.avatar = URL.createObjectURL(file)
-
-    // 同时更新用户store中的头像信息
-    await userStore.setUserInfo(userInfo.value)
-
-    avatarDialogVisible.value = false
-    ElMessage.success('头像上传成功')
-
-    // 调用成功回调
-    options.onSuccess?.({
-      url: userInfo.value.avatar
-    })
-
-  } catch (error: any) {
-    console.error('头像上传失败:', error)
-    ElMessage.error(`头像上传失败：${error.message || '请检查网络连接后重试'}`)
-
-    // 调用失败回调
-    options.onError?.(error)
-  }
-}
-
-// 打开头像上传对话框
-function openAvatarDialog() {
-  avatarDialogVisible.value = true
-}
+// 头像上传功能已移除
 
 // 重置表单
 function resetForm() {
@@ -156,16 +172,21 @@ function resetForm() {
     if (userInfo.value) {
       userInfo.value.username = userInfo.value.username || ''
       userInfo.value.email = userInfo.value.email || ''
-      userInfo.value.phone = userInfo.value.phone || ''
+
       userInfo.value.avatar = getUserAvatar.value || ''
     }
     ElMessage.success('表单已重置')
   })
 }
+
+// 页面挂载时获取用户信息
+onMounted(() => {
+  fetchUserInfo()
+})
 </script>
 
 <template>
-  <div class="profile-container h-full overflow-y-auto">
+  <div class="profile-container h-full mb-5">
     <!-- @vue-ignore -->
     <Motion :initial="pageVariants.initial" :animate="pageVariants.animate" :transition="pageVariants.transition">
       <div class="max-w-4xl mx-auto">
@@ -191,23 +212,52 @@ function resetForm() {
               </template>
 
               <div class="text-center mb-6">
-                <el-avatar :size="80" :src="userInfo?.avatar" class="mb-4" />
-                <h3 class="text-lg font-medium text-gray-900">{{ userInfo?.username || '未知用户' }}</h3>
-                <p class="text-gray-500">{{ userInfo?.role || '未设置角色' }}</p>
+                <el-avatar :size="80" :src="getUserAvatar" class="mb-4" />
+                <h3 class="text-lg font-medium text-gray-900">
+                  {{ userInfo?.first_name && userInfo?.last_name
+                    ? `${userInfo.first_name} ${userInfo.last_name}`
+                    : userInfo?.username || '未知用户' }}
+                </h3>
+                <p class="text-gray-500">{{ userInfo?.username || '未设置用户名' }}</p>
+                <p class="text-sm text-gray-400 mt-2">{{ userInfo?.user_info?.bio || '暂无个人简介' }}</p>
               </div>
 
               <div class="space-y-3">
-                <div class="flex items-center text-sm">
+                <div class="flex items-center text-sm" v-if="userInfo?.email">
                   <el-icon class="mr-2 text-gray-400">
                     <Message />
                   </el-icon>
-                  <span class="text-gray-600">{{ userInfo?.email || '未设置邮箱' }}</span>
+                  <span class="text-gray-600">{{ userInfo.email }}</span>
                 </div>
-                <div class="flex items-center text-sm">
+
+                <div class="flex items-center text-sm" v-if="userInfo?.user_info?.phone">
                   <el-icon class="mr-2 text-gray-400">
                     <Phone />
                   </el-icon>
-                  <span class="text-gray-600">{{ userInfo?.phone || '未设置手机号' }}</span>
+                  <span class="text-gray-600">{{ userInfo.user_info.phone }}</span>
+                </div>
+
+                <div class="flex items-center text-sm" v-if="userInfo?.user_info?.address">
+                  <el-icon class="mr-2 text-gray-400">
+                    <Location />
+                  </el-icon>
+                  <span class="text-gray-600">{{ userInfo.user_info.address }}</span>
+                </div>
+
+                <div class="flex items-center text-sm" v-if="userInfo?.user_info?.birthday">
+                  <el-icon class="mr-2 text-gray-400">
+                    <Calendar />
+                  </el-icon>
+                  <span class="text-gray-600">{{ userInfo.user_info.birthday }}</span>
+                </div>
+
+                <div class="flex items-center text-sm" v-if="userInfo?.user_info?.personal_site">
+                  <el-icon class="mr-2 text-gray-400">
+                    <Link />
+                  </el-icon>
+                  <a :href="userInfo.user_info.personal_site" target="_blank" class="text-blue-500 hover:text-blue-700">
+                    个人网站
+                  </a>
                 </div>
               </div>
             </el-card>
@@ -238,30 +288,122 @@ function resetForm() {
                   </div>
                 </template>
 
-                <el-form :model="userInfo" label-width="80px" v-if="userInfo">
-                  <el-form-item label="用户名">
-                    <el-input v-model="userInfo.username" />
-                  </el-form-item>
+                <el-form :model="userInfo" label-width="100px" v-if="userInfo && userInfo.user_info"
+                  class="profile-form">
+                  <!-- 基本信息 -->
+                  <div class="form-section">
+                    <h4 class="section-title">基本信息</h4>
 
-                  <el-form-item label="邮箱">
-                    <el-input v-model="userInfo.email" type="email" />
-                  </el-form-item>
+                    <el-form-item label="用户名">
+                      <el-input disabled v-model="userInfo.username" placeholder="请输入用户名" />
+                    </el-form-item>
 
-                  <el-form-item label="手机号">
-                    <el-input v-model="userInfo.phone" />
-                  </el-form-item>
+                    <el-form-item label="邮箱">
+                      <el-input v-model="userInfo.email" type="email" placeholder="请输入邮箱地址" />
+                    </el-form-item>
 
-                  <el-form-item label="头像">
-                    <div class="flex items-center space-x-4">
-                      <el-avatar :size="40" :src="userInfo.avatar" />
-                      <el-button size="small" @click="openAvatarDialog">
-                        <el-icon class="mr-1">
-                          <Plus />
-                        </el-icon>
-                        更换头像
-                      </el-button>
-                    </div>
-                  </el-form-item>
+                    <el-row :gutter="16">
+                      <el-col :span="12">
+                        <el-form-item label="姓">
+                          <el-input v-model="userInfo.first_name" placeholder="请输入姓" />
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="12">
+                        <el-form-item label="名">
+                          <el-input v-model="userInfo.last_name" placeholder="请输入名" />
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+
+                    <el-form-item label="账户状态">
+                      <el-switch v-model="userInfo.is_active" active-text="启用" inactive-text="禁用" :disabled="true" />
+                    </el-form-item>
+                  </div>
+
+                  <!-- 个人详细信息 -->
+                  <div class="form-section">
+                    <h4 class="section-title">个人详细信息</h4>
+
+                    <el-form-item label="头像">
+                      <div class="flex items-center space-x-4">
+                        <el-avatar :size="40" :src="getUserAvatar" />
+                        <span class="text-gray-500 text-sm">头像显示功能</span>
+                      </div>
+                    </el-form-item>
+
+                    <el-form-item label="手机号">
+                      <el-input v-model="userInfo.user_info!.phone" placeholder="请输入手机号" :prefix-icon="Phone" />
+                    </el-form-item>
+
+                    <el-form-item label="个人简介">
+                      <el-input v-model="userInfo.user_info!.bio" type="textarea" :rows="3" placeholder="请输入个人简介" />
+                    </el-form-item>
+
+                    <el-form-item label="地址">
+                      <el-input v-model="userInfo.user_info!.address" placeholder="请输入地址" :prefix-icon="Location" />
+                    </el-form-item>
+
+                    <el-row :gutter="16">
+                      <el-col :span="12">
+                        <el-form-item label="生日">
+                          <el-date-picker v-model="userInfo.user_info!.birthday" type="date" placeholder="选择生日"
+                            format="YYYY-MM-DD" value-format="YYYY-MM-DD" style="width: 100%" />
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="12">
+                        <el-form-item label="性别">
+                          <el-select v-model="userInfo.user_info!.gender" placeholder="请选择性别" style="width: 100%">
+                            <el-option label="男" value="male">
+                              <div class="flex items-center">
+                                <el-icon class="mr-2">
+                                  <Male />
+                                </el-icon>
+                                <span>男</span>
+                              </div>
+                            </el-option>
+                            <el-option label="女" value="female">
+                              <div class="flex items-center">
+                                <el-icon class="mr-2">
+                                  <Female />
+                                </el-icon>
+                                <span>女</span>
+                              </div>
+                            </el-option>
+                            <el-option label="其他" value="other">
+                              <span>其他</span>
+                            </el-option>
+                          </el-select>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                  </div>
+
+                  <!-- 社交信息 -->
+                  <div class="form-section">
+                    <h4 class="section-title">社交信息</h4>
+
+                    <el-form-item label="个人网站">
+                      <el-input v-model="userInfo.user_info!.personal_site" placeholder="请输入个人网站地址"
+                        :prefix-icon="Link" />
+                    </el-form-item>
+
+                    <el-row :gutter="16">
+                      <el-col :span="12">
+                        <el-form-item label="微信号">
+                          <el-input v-model="userInfo.user_info!.wechat" placeholder="请输入微信号" />
+                        </el-form-item>
+                      </el-col>
+                      <el-col :span="12">
+                        <el-form-item label="QQ号">
+                          <el-input v-model="userInfo.user_info!.qq" placeholder="请输入QQ号" />
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+
+                    <el-form-item class="mt-5" label="微博">
+                      <el-input v-model="userInfo.user_info!.weibo" placeholder="请输入微博账号" />
+                    </el-form-item>
+                  </div>
                 </el-form>
                 <div v-else class="text-center py-8 text-gray-500">
                   用户信息加载中...
@@ -272,42 +414,13 @@ function resetForm() {
         </div>
       </div>
     </Motion>
-
-    <!-- 头像上传对话框 -->
-    <el-dialog v-model="avatarDialogVisible" title="更换头像" width="400px" center>
-      <div class="text-center">
-        <div class="mb-4">
-          <el-avatar :size="100" :src="userInfo?.avatar" class="mb-4" />
-          <p class="text-gray-600 text-sm">当前头像</p>
-        </div>
-
-        <el-upload class="avatar-uploader" :http-request="customAvatarUpload" :show-file-list="false"
-          :on-success="handleAvatarSuccess" :on-error="handleAvatarError" :before-upload="beforeAvatarUpload"
-          accept="image/*" drag>
-          <div class="upload-area">
-            <el-icon class="upload-icon">
-              <Plus />
-            </el-icon>
-            <div class="upload-text">
-              <p>点击或拖拽图片到此处上传</p>
-              <p class="upload-hint">支持 JPG、PNG、GIF 格式，文件大小不超过 2MB</p>
-            </div>
-          </div>
-        </el-upload>
-      </div>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="avatarDialogVisible = false">取消</el-button>
-        </div>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
 <style scoped>
 .profile-container {
   padding: 24px;
+  height: calc(100vh - 120px);
 }
 
 .profile-card {
@@ -330,47 +443,35 @@ function resetForm() {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
-/* 头像上传样式 */
-.avatar-uploader {
-  width: 100%;
+/* 表单样式 */
+.profile-form {
+  max-width: 800px;
 }
 
-.upload-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  border: 2px dashed #d9d9d9;
+.form-section {
+  margin-bottom: 32px;
+  padding: 24px;
+  background: #fafafa;
   border-radius: 8px;
-  background-color: #fafafa;
-  transition: all 0.3s ease;
-  cursor: pointer;
+  border: 1px solid #e9ecef;
 }
 
-.upload-area:hover {
-  border-color: #409eff;
-  background-color: #f0f9ff;
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 20px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #667eea;
 }
 
-.upload-icon {
-  font-size: 48px;
-  color: #c0c4cc;
-  margin-bottom: 16px;
+.form-section .el-form-item {
+  margin-bottom: 20px;
 }
 
-.upload-text p {
-  margin: 0;
-  color: #606266;
+.form-section .el-form-item:last-child {
+  margin-bottom: 0;
 }
 
-.upload-hint {
-  font-size: 12px;
-  color: #909399;
-  margin-top: 8px;
-}
-
-.dialog-footer {
-  text-align: center;
-}
+/* 头像上传样式已移除 */
 </style>

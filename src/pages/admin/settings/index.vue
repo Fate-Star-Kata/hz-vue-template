@@ -62,7 +62,7 @@ function saveSettings(type: string) {
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <!-- 系统设置 -->
           <!-- @vue-ignore -->
-          <Motion :initial="cardVariants.initial" :animate="cardVariants.animate" 
+          <Motion :initial="cardVariants.initial" :animate="cardVariants.animate"
             :transition="{ ...cardVariants.transition, delay: 0.1 }">
             <el-card class="settings-card">
               <template #header>
@@ -78,17 +78,16 @@ function saveSettings(type: string) {
                   </el-button>
                 </div>
               </template>
-              
+
               <el-form :model="systemSettings" label-width="100px">
                 <el-form-item label="站点名称">
                   <el-input v-model="systemSettings.siteName" placeholder="请输入站点名称" />
                 </el-form-item>
-                
+
                 <el-form-item label="站点描述">
-                  <el-input v-model="systemSettings.siteDescription" type="textarea" 
-                    :rows="3" placeholder="请输入站点描述" />
+                  <el-input v-model="systemSettings.siteDescription" type="textarea" :rows="3" placeholder="请输入站点描述" />
                 </el-form-item>
-                
+
                 <el-form-item label="主题模式">
                   <el-select v-model="systemSettings.theme" placeholder="选择主题">
                     <el-option label="浅色模式" value="light" />
@@ -96,14 +95,14 @@ function saveSettings(type: string) {
                     <el-option label="跟随系统" value="auto" />
                   </el-select>
                 </el-form-item>
-                
+
                 <el-form-item label="语言">
                   <el-select v-model="systemSettings.language" placeholder="选择语言">
                     <el-option label="简体中文" value="zh-CN" />
                     <el-option label="English" value="en-US" />
                   </el-select>
                 </el-form-item>
-                
+
                 <el-form-item label="时区">
                   <el-select v-model="systemSettings.timezone" placeholder="选择时区">
                     <el-option label="北京时间 (UTC+8)" value="Asia/Shanghai" />
@@ -117,7 +116,7 @@ function saveSettings(type: string) {
 
           <!-- 通知设置 -->
           <!-- @vue-ignore -->
-          <Motion :initial="cardVariants.initial" :animate="cardVariants.animate" 
+          <Motion :initial="cardVariants.initial" :animate="cardVariants.animate"
             :transition="{ ...cardVariants.transition, delay: 0.2 }">
             <el-card class="settings-card">
               <template #header>
@@ -133,7 +132,7 @@ function saveSettings(type: string) {
                   </el-button>
                 </div>
               </template>
-              
+
               <div class="space-y-4">
                 <div class="flex items-center justify-between">
                   <div>
@@ -142,9 +141,9 @@ function saveSettings(type: string) {
                   </div>
                   <el-switch v-model="notificationSettings.emailNotification" />
                 </div>
-                
+
                 <el-divider />
-                
+
                 <div class="flex items-center justify-between">
                   <div>
                     <div class="font-medium text-gray-900">短信通知</div>
@@ -152,9 +151,9 @@ function saveSettings(type: string) {
                   </div>
                   <el-switch v-model="notificationSettings.smsNotification" />
                 </div>
-                
+
                 <el-divider />
-                
+
                 <div class="flex items-center justify-between">
                   <div>
                     <div class="font-medium text-gray-900">浏览器通知</div>
@@ -162,9 +161,9 @@ function saveSettings(type: string) {
                   </div>
                   <el-switch v-model="notificationSettings.browserNotification" />
                 </div>
-                
+
                 <el-divider />
-                
+
                 <div class="flex items-center justify-between">
                   <div>
                     <div class="font-medium text-gray-900">系统维护通知</div>
@@ -178,7 +177,7 @@ function saveSettings(type: string) {
 
           <!-- 安全设置 -->
           <!-- @vue-ignore -->
-          <Motion :initial="cardVariants.initial" :animate="cardVariants.animate" 
+          <Motion :initial="cardVariants.initial" :animate="cardVariants.animate"
             :transition="{ ...cardVariants.transition, delay: 0.3 }">
             <el-card class="settings-card">
               <template #header>
@@ -194,7 +193,7 @@ function saveSettings(type: string) {
                   </el-button>
                 </div>
               </template>
-              
+
               <el-form :model="securitySettings" label-width="120px">
                 <el-form-item>
                   <template #label>
@@ -205,27 +204,24 @@ function saveSettings(type: string) {
                   </template>
                   <el-switch v-model="securitySettings.twoFactorAuth" />
                 </el-form-item>
-                
+
                 <el-form-item label="会话超时">
                   <div class="flex items-center space-x-2">
-                    <el-input-number v-model="securitySettings.sessionTimeout" 
-                      :min="5" :max="120" size="small" />
+                    <el-input-number v-model="securitySettings.sessionTimeout" :min="5" :max="120" size="small" />
                     <span class="text-sm text-gray-500">分钟</span>
                   </div>
                 </el-form-item>
-                
+
                 <el-form-item label="密码有效期">
                   <div class="flex items-center space-x-2">
-                    <el-input-number v-model="securitySettings.passwordExpiry" 
-                      :min="30" :max="365" size="small" />
+                    <el-input-number v-model="securitySettings.passwordExpiry" :min="30" :max="365" size="small" />
                     <span class="text-sm text-gray-500">天</span>
                   </div>
                 </el-form-item>
-                
+
                 <el-form-item label="登录尝试次数">
                   <div class="flex items-center space-x-2">
-                    <el-input-number v-model="securitySettings.loginAttempts" 
-                      :min="3" :max="10" size="small" />
+                    <el-input-number v-model="securitySettings.loginAttempts" :min="3" :max="10" size="small" />
                     <span class="text-sm text-gray-500">次</span>
                   </div>
                 </el-form-item>
@@ -235,7 +231,7 @@ function saveSettings(type: string) {
 
           <!-- 其他设置 -->
           <!-- @vue-ignore -->
-          <Motion :initial="cardVariants.initial" :animate="cardVariants.animate" 
+          <Motion :initial="cardVariants.initial" :animate="cardVariants.animate"
             :transition="{ ...cardVariants.transition, delay: 0.4 }">
             <el-card class="settings-card">
               <template #header>
@@ -246,7 +242,7 @@ function saveSettings(type: string) {
                   <span class="font-medium">其他设置</span>
                 </div>
               </template>
-              
+
               <div class="space-y-4">
                 <el-button type="info" plain class="w-full">
                   <el-icon class="mr-2">
@@ -254,14 +250,14 @@ function saveSettings(type: string) {
                   </el-icon>
                   导出系统配置
                 </el-button>
-                
+
                 <el-button type="warning" plain class="w-full">
                   <el-icon class="mr-2">
                     <Upload />
                   </el-icon>
                   导入系统配置
                 </el-button>
-                
+
                 <el-button type="danger" plain class="w-full">
                   <el-icon class="mr-2">
                     <RefreshLeft />

@@ -10,28 +10,49 @@ export interface FormValidationRule {
   validator?: (value: any) => boolean | string
 }
 
+// 用户详细信息类型
+export interface UserDetailInfo {
+  avatar?: string
+  phone?: string
+  wechat?: string
+  qq?: string
+  weibo?: string
+  personal_site?: string
+  bio?: string
+  address?: string
+  birthday?: string
+  gender?: 'male' | 'female' | 'other'
+}
+
 // 用户信息类型
 export interface UserInfo {
   id?: string | number
   username?: string
   password?: string
   email?: string
-  phone?: string
-  avatar?: string
+  first_name?: string
+  last_name?: string
+  is_active?: boolean
+  user_info?: UserDetailInfo
   roles?: string[]
   permissions?: string[]
   [key: string]: any
 }
 
 export interface UserInfoNoToken {
-  ip: string
-  login_time: Date
-  user_id: number
+  id?: number
   username: string
-  avatar?: string | null
   email?: string | null
-  phone?: string | null,
+  first_name?: string
+  last_name?: string
+  is_active?: boolean
+  avatar?: string | null
+  phone?: string | null
   role?: string | null
+  user_info?: UserDetailInfo
+  ip?: string
+  login_time?: Date
+  user_id?: number
 }
 
 // 登录请求参数类型
