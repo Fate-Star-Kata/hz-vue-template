@@ -91,7 +91,6 @@ import {
   getNotificationList,
   markNotificationRead,
   markAllNotificationRead,
-  getNotificationDetail,
   type NotificationItem,
   type NotificationListParams
 } from '@/api/user/notification'

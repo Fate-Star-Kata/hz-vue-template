@@ -5,13 +5,13 @@
       <div class="max-w-3xl w-full px-4 text-center space-y-6">
         <RevealMotion :delay="0">
           <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight">
-            一个适用于任何项目的极简首页
+            TITLE
           </h1>
         </RevealMotion>
 
         <RevealMotion :delay="0.1">
           <p class="text-lg md:text-xl opacity-70">
-            只需替换文字与链接，无行业烙印，无设计负担。
+            DESC
           </p>
         </RevealMotion>
 
@@ -42,11 +42,11 @@
     <section id="about" class="py-16">
       <div class="max-w-4xl mx-auto px-4 space-y-4 text-center">
         <RevealMotion :delay="0">
-          <h2 class="text-2xl md:text-3xl font-bold">关于这个模板</h2>
+          <h2 class="text-2xl md:text-3xl font-bold">TITLE</h2>
         </RevealMotion>
         <RevealMotion :delay="0.08">
           <p class="opacity-70">
-            结构克制、留白充足、配色中性，适配品牌官网、产品页、文档站或活动页。
+            DESC
           </p>
         </RevealMotion>
       </div>

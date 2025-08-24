@@ -1,9 +1,13 @@
 <!-- 关闭这个页面 Motion 组件的所有ts检测 -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { Motion } from 'motion-v'
 import AdminHeader from '@/components/pages/admin/header.vue'
 import AdminNavbar from '@/components/pages/admin/navbar.vue'
+
+const router = useRouter()
+const route = useRoute()
 
 // 侧边栏折叠状态
 const isCollapse = ref(false)
@@ -71,6 +75,14 @@ const iconVariants = {
   },
   transition: { duration: 0.6, delay: 0.3, ease: ['easeOut'] }
 }
+
+// 路由重定向逻辑
+onMounted(() => {
+  // 如果当前路由是 /admin，则重定向到 /admin/dashboard
+  if (route.path === '/admin') {
+    router.replace('/admin/dashboard')
+  }
+})
 </script>
 
 
