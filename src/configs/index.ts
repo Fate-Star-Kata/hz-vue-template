@@ -60,43 +60,65 @@ export const defaultMenuItems: MenuItem[] = [
 // 管理后台菜单配置
 export const adminMenuItems: AdminHeader[] = [
   {
-    id: '1',
-    title: '仪表板',
-    icon: 'Odometer',
-    path: '/admin/dashboard',
+    id: "1",
+    title: "仪表板",
+    icon: "Odometer",
+    path: "/admin/dashboard",
   },
   {
-    id: '2',
-    title: '用户管理',
-    icon: 'User',
-    path: '/admin/userManage',
+    id: "2",
+    title: "用户管理",
+    icon: "User",
+    path: "/admin/userManage",
     // children: [
     //   { id: '2-1', title: '用户列表', icon: 'UserFilled', path: '/admin/userManage' },
     // ]
   },
   {
-    id: '3',
-    title: '内容管理',
-    icon: 'Document',
-    path: '/admin/content',
+    id: "3",
+    title: "内容管理",
+    icon: "Document",
+    path: "/admin/content",
   },
   {
-    id: '4',
-    title: '订单管理',
-    icon: 'ShoppingCart',
-    path: '/admin/orders',
+    id: "4",
+    title: "知识管理",
+    icon: "Document",
+    path: "/admin/knowledge",
+  },
+  {
+    id: "5",
+    title: "订单管理",
+    icon: "ShoppingCart",
+    path: "/admin/orders",
     hide: true,
     children: [
-      { id: '4-1', title: '订单列表', icon: 'List', path: '/admin/orders/list' },
-      { id: '4-2', title: '退款管理', icon: 'RefreshLeft', path: '/admin/orders/refunds' }
-    ]
+      {
+        id: "4-1",
+        title: "订单列表",
+        icon: "List",
+        path: "/admin/orders/list",
+      },
+      {
+        id: "4-2",
+        title: "退款管理",
+        icon: "RefreshLeft",
+        path: "/admin/orders/refunds",
+      },
+    ],
   },
   {
-    id: '5',
-    title: '文件系统',
-    icon: 'FolderChecked',
-    path: '/admin/files',
+    id: "6",
+    title: "文件系统",
+    icon: "FolderChecked",
+    path: "/admin/files",
   },
+  // {
+  //   id: '6',
+  //   title: 'AI 助手',
+  //   icon: 'ChatDotRound',
+  //   path: '/admin/ai',
+  // },
   {
     id: '7',
     title: '财务管理',
@@ -104,29 +126,54 @@ export const adminMenuItems: AdminHeader[] = [
     path: '/admin/finance',
     hide: true,
     children: [
-      { id: '7-1', title: '收支明细', icon: 'Wallet', path: '/admin/finance/transactions' },
-      { id: '7-2', title: '财务报表', icon: 'DataAnalysis', path: '/admin/finance/reports' }
-    ]
+      {
+        id: "8-1",
+        title: "收支明细",
+        icon: "Wallet",
+        path: "/admin/finance/transactions",
+      },
+      {
+        id: "8-2",
+        title: "财务报表",
+        icon: "DataAnalysis",
+        path: "/admin/finance/reports",
+      },
+    ],
   },
   {
-    id: '8',
-    title: '系统设置',
-    icon: 'Setting',
-    path: '/admin/settings',
+    id: "9",
+    title: "系统设置",
+    icon: "Setting",
+    path: "/admin/settings",
     hide: true,
     children: [
-      { id: '8-1', title: '基础设置', icon: 'Tools', path: '/admin/settings/basic' },
-      { id: '8-2', title: '权限管理', icon: 'Key', path: '/admin/settings/permissions' },
-      { id: '8-3', title: '系统日志', icon: 'DocumentCopy', path: '/admin/settings/logs' }
-    ]
+      {
+        id: "9-1",
+        title: "基础设置",
+        icon: "Tools",
+        path: "/admin/settings/basic",
+      },
+      {
+        id: "9-2",
+        title: "权限管理",
+        icon: "Key",
+        path: "/admin/settings/permissions",
+      },
+      {
+        id: "9-3",
+        title: "系统日志",
+        icon: "DocumentCopy",
+        path: "/admin/settings/logs",
+      },
+    ],
   },
   {
-    id: '9',
-    title: '系统配置',
-    icon: 'Tools',
-    path: '/admin/systemConfig'
-  }
-]
+    id: "10",
+    title: "系统配置",
+    icon: "Tools",
+    path: "/admin/systemConfig",
+  },
+];
 
 const serverConfig = {
   baseURL: '/api', // 请求基础地址,可根据环境自定义
