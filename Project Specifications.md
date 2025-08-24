@@ -8,14 +8,19 @@ HZSystem-UI 是基于 Vue 3 + TypeScript + Vite + DaisyUI + Element Plus 的前�
 
 - **框架**: Vue 3 (Composition API)
 - **语言**: TypeScript
-- **构建工具**: Vite
+- **构建工具**: Vite yarn
 - **UI 组件库**: Element Plus + DaisyUI
 - **样式**: Tailwind CSS + SCSS
+- **动画**: Motion Motion-v
 - **路由**: Vue Router 4
 - **状态管理**: Pinia
 - **国际化**: Vue I18n
-- **包管理**: yarn
 - **代码规范**: ESLint + Prettier
+
+## 说明
+
+> [!NOTE]
+> 网站标题和 logo 可以通过环境变量配置,logo 组件需要在 **components/icon** 下创建组件。
 
 ## 🚀 开发环境配置（重要）
 
@@ -125,6 +130,9 @@ import.meta.env.VITE_API_BASE_URL
    - 样式类名
    - 样式动画
    - 样式媒体查询
+4. 动画相关
+   - Motion-vue 库
+    - Tailwind CSS
 
 ### 组件规范
 
@@ -208,6 +216,12 @@ export interface FormRules {
 ```
 
 </details>
+
+## I18n 多语言规范
+
+> [!TIP]
+> 在header和管理端Navbar等地方，是用了 i18n 国际化功能，
+> 使用处的文字必须添加对应的数据在locale文件夹不能出现未定义的文字
 
 ## 🌐 API 接口规范（重要）
 
@@ -487,6 +501,8 @@ docs: 更新API文档
 2. 页面对接口时，如果后续接口参数发生更新，你同样也需要自己去查找定义类型接口，更新对应的参数类型，防止编辑器问题提示
 3. 管理端ui风格需要与 pages>admin>dashboard 一致,客户端ui风格需要与 pages>knowledge 也可以参考 pages>stats
 4. public>res.json 这文件通常是为了给ai看响应体类型，而不是数据通过这个文件来获取，数据是通过接口来获取的，方便ai查看
+5. Typescript 一定不能出现异常，更新了数据结构ts也必须修改，不能出现任何ts类型错误
+6. 对接后端时：页面中的部分ui，后端接口并没有提供数据，请直接移除并看情况调整ui布局，前端适应后端的数据，没用的东西直接移除，不要保留空的ui元素
 
 ## 🚀 最佳实践（重要）
 

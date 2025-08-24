@@ -1,7 +1,6 @@
 // src/router/index.ts
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { routes } from 'vue-router/auto-routes'
-import adminIndex from "@/pages/admin/index.vue";
 
 type AutoRoute = {
   path?: string
@@ -64,31 +63,31 @@ function flattenRoutes(list: AutoRoute[], basePath = ''): AutoRoute[] {
 }
 
 function buildRoutes() {
-  const normalRoutes = flattenRoutes(routes.filter(r => r.path !== '/admin'))
+  const normalRoutes = flattenRoutes(
+    routes.filter(r => r.path !== '/admin' && r.path !== '/templates')
+  )
+
   const adminRoot = routes.find(r => r.path === '/admin')
-  
-  // 为admin子路由创建正确的嵌套结构
-  const adminChildren = adminRoot && adminRoot.children ? adminRoot.children.map(child => {
-    // 移除路径前缀，因为它们将作为子路由
-    const childPath = child.path?.replace('/admin/', '') || ''
-    return {
-      ...child,
-      path: childPath
-    }
-  }) : []
+  const adminChildren = adminRoot ? flattenRoutes(adminRoot.children || [], '') : []
+
+  // 母版组件注册 templates 根路由
+  const templatesRoot = routes.find(r => r.path === '/templates')
+  const templatesChildren = templatesRoot ? flattenRoutes(templatesRoot.children || [], '/templates/') : []
 
   return [
-    // 根路径重定向到登录页面
-    // {
-    //   path: '/',
-    //   redirect: '/auth/login'
-    // },
     ...normalRoutes,
     {
       path: '/admin',
-      component: () => import('@/pages/admin/index.vue'),
+      component: import('@/pages/admin/index.vue'),
       redirect: '/admin/dashboard',
       children: adminChildren
+    },
+    //母版组件存放特殊路径
+    {
+      path: '/templates',
+      // @ts-ignore canFind this component
+      component: () => import('@/pages/templates/index.vue'), // 可建一个 index.vue 当 layout
+      children: templatesChildren
     }
   ]
 }

@@ -18,17 +18,19 @@ import App from './App.vue'
 import 'element-plus/dist/index.css'
 
 import './style.css'
+import './styles/themes.css'
 
 // 全局主题初始化函数
 function initGlobalTheme() {
-  const savedTheme = localStorage.getItem('color-theme')
+  const savedTheme = localStorage.getItem('theme')
   if (savedTheme) {
     document.documentElement.setAttribute('data-theme', savedTheme)
   } else {
-    // 如果没有保存的主题，使用默认浅色主题
-    const defaultTheme = 'light'
+    // 如果没有保存的主题，使用系统偏好
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const defaultTheme = prefersDark ? 'dark' : 'light'
     document.documentElement.setAttribute('data-theme', defaultTheme)
-    localStorage.setItem('color-theme', defaultTheme)
+    localStorage.setItem('theme', defaultTheme)
   }
 }
 

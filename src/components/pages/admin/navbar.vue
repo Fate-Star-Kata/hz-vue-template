@@ -57,12 +57,12 @@ onMounted(() => {
     <!-- Logo -->
     <div class="logo-container flex items-center justify-center h-16 border-b border-gray-100">
       <div v-if="!isCollapse" class="flex items-center space-x-2">
-        <img src="@/assets/logo/logo-蓝.png" alt="Hzsystem Logo" class="w-12 h-8" />
-          <span class="text-gray-800 text-lg font-semibold">Hzsystem</span>
-        </div>
-  
-        <div v-else class="flex items-center">
-          <img src="@/assets/logo/logo-蓝.png" alt="HZSystem Logo" class="w-12 h-8" />
+        <component :is="serverConfig.VITE_APP_LOGO" class="w-10 h-8" size="20px" />
+        <span class="text-gray-800 text-lg font-semibold">{{ serverConfig.VITE_APP_TITLE }}</span>
+      </div>
+
+      <div v-else class="flex items-center">
+        <component :is="serverConfig.VITE_APP_LOGO" class="w-12 h-8" size="20px" />
       </div>
     </div>
 

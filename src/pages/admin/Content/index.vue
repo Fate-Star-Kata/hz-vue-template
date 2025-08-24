@@ -111,15 +111,8 @@
 
       <!-- 通知列表 -->
       <div v-else class="table-container">
-        <el-table 
-          :data="notificationList" 
-          stripe 
-          border
-          style="width: 100%"
-          :loading="loading"
-          empty-text="暂无通知数据"
-          class="notification-table"
-        >
+        <el-table :data="notificationList" stripe border style="width: 100%" :loading="loading" empty-text="暂无通知数据"
+          class="notification-table">
           <el-table-column prop="title" label="通知标题" min-width="200" show-overflow-tooltip>
             <template #default="{ row }">
               <div class="title-cell">
@@ -127,7 +120,7 @@
               </div>
             </template>
           </el-table-column>
-          
+
           <el-table-column prop="content" label="通知内容" min-width="300" show-overflow-tooltip>
             <template #default="{ row }">
               <div class="content-cell">
@@ -135,7 +128,7 @@
               </div>
             </template>
           </el-table-column>
-          
+
           <el-table-column label="状态" width="120" align="center">
             <template #default="{ row }">
               <div class="status-cell">
@@ -145,7 +138,7 @@
               </div>
             </template>
           </el-table-column>
-          
+
           <el-table-column label="启用状态" width="100" align="center">
             <template #default="{ row }">
               <el-tag :type="row.is_active ? 'success' : 'danger'" size="small">
@@ -157,9 +150,9 @@
               </el-tag>
             </template>
           </el-table-column>
-          
 
-          
+
+
           <el-table-column label="创建时间" width="120" align="center">
             <template #default="{ row }">
               <div class="time-cell">
@@ -170,7 +163,7 @@
               </div>
             </template>
           </el-table-column>
-          
+
           <el-table-column label="操作" width="140" align="center" fixed="right">
             <template #default="{ row }">
               <div class="action-cell">
@@ -206,16 +199,9 @@
     </div>
 
     <!-- 创建/编辑通知对话框 -->
-    <el-dialog
-      v-model="showCreateDialog"
-      :title="editingNotification ? '编辑通知' : '发布通知'"
-      width="650px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      destroy-on-close
-      class="notification-dialog"
-      align-center
-    >
+    <el-dialog v-model="showCreateDialog" :title="editingNotification ? '编辑通知' : '发布通知'" width="650px"
+      :close-on-click-modal="false" :close-on-press-escape="false" destroy-on-close class="notification-dialog"
+      align-center>
       <template #header="{ titleId, titleClass }">
         <div class="dialog-header">
           <div class="dialog-icon">
@@ -231,39 +217,18 @@
       </template>
 
       <div class="dialog-content">
-        <el-form
-          ref="notificationFormRef"
-          :model="notificationForm"
-          :rules="formRules"
-          label-width="100px"
-          label-position="left"
-          size="default"
-          class="notification-form"
-        >
+        <el-form ref="notificationFormRef" :model="notificationForm" :rules="formRules" label-width="100px"
+          label-position="left" size="default" class="notification-form">
           <div class="form-section">
             <h4 class="section-title">基本信息</h4>
             <el-form-item label="通知标题" prop="title" class="form-item">
-              <el-input
-                v-model="notificationForm.title"
-                placeholder="请输入通知标题"
-                maxlength="100"
-                show-word-limit
-                clearable
-                class="form-input"
-              />
+              <el-input v-model="notificationForm.title" placeholder="请输入通知标题" maxlength="100" show-word-limit clearable
+                class="form-input" />
             </el-form-item>
 
             <el-form-item label="通知内容" prop="content" class="form-item">
-              <el-input
-                v-model="notificationForm.content"
-                type="textarea"
-                :rows="6"
-                placeholder="请输入通知内容"
-                maxlength="1000"
-                show-word-limit
-                resize="vertical"
-                class="form-textarea"
-              />
+              <el-input v-model="notificationForm.content" type="textarea" :rows="6" placeholder="请输入通知内容"
+                maxlength="1000" show-word-limit resize="vertical" class="form-textarea" />
             </el-form-item>
           </div>
 
@@ -271,26 +236,14 @@
             <h4 class="section-title">通知设置</h4>
             <div class="switch-group">
               <el-form-item label="是否启用" class="switch-item">
-                <el-switch
-                  v-model="notificationForm.is_active"
-                  active-text="启用"
-                  inactive-text="未启用"
-                  active-color="var(--el-color-success)"
-                  inactive-color="var(--el-color-info)"
-                  size="default"
-                />
+                <el-switch v-model="notificationForm.is_active" active-text="启用" inactive-text="未启用"
+                  active-color="var(--el-color-success)" inactive-color="var(--el-color-info)" size="default" />
               </el-form-item>
 
               <el-form-item label="通知所有人" class="switch-item">
-                <el-switch
-                  v-model="notificationForm.notify_all"
-                  active-text="是"
-                  inactive-text="否"
-                  active-color="var(--el-color-primary)"
-                  inactive-color="var(--el-color-info)"
-                  size="default"
-                  @change="handleNotifyAllChange"
-                />
+                <el-switch v-model="notificationForm.notify_all" active-text="是" inactive-text="否"
+                  active-color="var(--el-color-primary)" inactive-color="var(--el-color-info)" size="default"
+                  @change="handleNotifyAllChange" />
               </el-form-item>
 
 
@@ -298,23 +251,9 @@
             <br></br>
             <!-- 指定用户选择 -->
             <el-form-item v-if="!notificationForm.notify_all" label="指定用户" prop="recipient_user_ids" class="form-item">
-              <el-select
-                v-model="notificationForm.recipient_user_ids"
-                multiple
-                filterable
-                remote
-                reserve-keyword
-                placeholder="请选择要通知的用户"
-                :remote-method="searchUsers"
-                :loading="userSearchLoading"
-                class="form-select"
-              >
-                <el-option
-                  v-for="user in userOptions"
-                  :key="user.id"
-                  :label="user.username"
-                  :value="user.id"
-                />
+              <el-select v-model="notificationForm.recipient_user_ids" multiple filterable remote reserve-keyword
+                placeholder="请选择要通知的用户" :remote-method="searchUsers" :loading="userSearchLoading" class="form-select">
+                <el-option v-for="user in userOptions" :key="user.id" :label="user.username" :value="user.id" />
               </el-select>
             </el-form-item>
           </div>
@@ -323,20 +262,10 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button
-            size="large"
-            @click="showCreateDialog = false"
-            class="cancel-btn"
-          >
+          <el-button size="large" @click="showCreateDialog = false" class="cancel-btn">
             取消
           </el-button>
-          <el-button
-            type="primary"
-            size="large"
-            :loading="submitting"
-            @click="handleSubmit"
-            class="submit-btn"
-          >
+          <el-button type="primary" size="large" :loading="submitting" @click="handleSubmit" class="submit-btn">
             <el-icon v-if="!submitting" class="btn-icon">
               <Edit v-if="editingNotification" />
               <Plus v-else />
@@ -348,39 +277,19 @@
     </el-dialog>
 
     <!-- 发送给特定用户对话框 -->
-    <el-dialog
-      v-model="showSendToUserDialog"
-      title="发送给特定用户"
-      width="500px"
-      :close-on-click-modal="false"
-      destroy-on-close
-      align-center
-    >
+    <el-dialog v-model="showSendToUserDialog" title="发送给特定用户" width="500px" :close-on-click-modal="false"
+      destroy-on-close align-center>
       <div class="send-to-user-content">
         <el-form label-width="100px">
           <el-form-item label="选择用户">
-            <el-select
-              v-model="sendToUserForm.recipient_user_ids"
-              multiple
-              filterable
-              remote
-              reserve-keyword
-              placeholder="请选择要通知的用户"
-              :remote-method="searchUsers"
-              :loading="userSearchLoading"
-              style="width: 100%"
-            >
-              <el-option
-                v-for="user in userOptions"
-                :key="user.id"
-                :label="user.username"
-                :value="user.id"
-              />
+            <el-select v-model="sendToUserForm.recipient_user_ids" multiple filterable remote reserve-keyword
+              placeholder="请选择要通知的用户" :remote-method="searchUsers" :loading="userSearchLoading" style="width: 100%">
+              <el-option v-for="user in userOptions" :key="user.id" :label="user.username" :value="user.id" />
             </el-select>
           </el-form-item>
         </el-form>
       </div>
-      
+
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="showSendToUserDialog = false">取消</el-button>
@@ -584,7 +493,7 @@ const searchUsers = async (query: string) => {
     userOptions.value = []
     return
   }
-  
+
   userSearchLoading.value = true
   try {
     // 调用用户搜索API
@@ -594,7 +503,7 @@ const searchUsers = async (query: string) => {
       page: 1,
       page_size: 50 // 获取更多用户供选择
     })
-    
+
     if (response.data && response.data.users) {
       userOptions.value = response.data.users.map(user => ({
         id: user.id!,
@@ -627,9 +536,9 @@ const handleSubmit = async () => {
   try {
     // 先进行表单验证
     await notificationFormRef.value.validate()
-    
+
     // 移除必须选择用户的验证，允许不指定用户发送
-    
+
     submitting.value = true
 
     // 构建提交数据，根据notify_all决定是否包含recipient_user_ids
@@ -649,7 +558,7 @@ const handleSubmit = async () => {
         id: editingNotification.value.id,
         ...submitData
       })
-      : await notificationApi.createNotification(submitData)
+      : await notificationApi.createNotification(submitData as CreateNotificationReq)
 
     if (response.code === 200) {
       ElMessage.success(response.msg || `${editingNotification.value ? '更新' : '发布'}成功`)
@@ -685,7 +594,7 @@ const handleEdit = (id: string | number) => {
 const handleSendToUsers = async (id: string | number) => {
   sendToUserForm.notification_id = Number(id)
   sendToUserForm.recipient_user_ids = []
-  
+
   // 加载所有用户列表
   try {
     const { getUsersAPI } = await import('@/api/admin/users')
@@ -694,7 +603,7 @@ const handleSendToUsers = async (id: string | number) => {
       page: 1,
       page_size: 100 // 获取更多用户
     })
-    
+
     if (response.data && response.data.users) {
       userOptions.value = response.data.users.map(user => ({
         id: user.id!,
@@ -705,7 +614,7 @@ const handleSendToUsers = async (id: string | number) => {
     console.error('加载用户列表失败:', error)
     ElMessage.error('加载用户列表失败')
   }
-  
+
   showSendToUserDialog.value = true
 }
 
@@ -763,7 +672,7 @@ const handleDelete = async (id: string | number) => {
         type: 'warning',
       }
     )
-    
+
     const response = await notificationApi.deleteNotification(id)
     if (response.code === 200) {
       ElMessage.success(response.msg || '删除成功')

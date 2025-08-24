@@ -48,7 +48,10 @@
     "categories": "分类管理",
     "admin": "管理",
     "stats": "统计",
-    "knowledge": "知识库"
+    "websocket": "websocket",
+    "knowledge": "知识库",
+    "templates": "模板",
+    "index": "首页"
   },
   "form": {
     "username": "用户名",

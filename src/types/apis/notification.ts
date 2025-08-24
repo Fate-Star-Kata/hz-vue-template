@@ -7,10 +7,12 @@ export interface NotificationItem {
   is_active: boolean
   created_at: string
   updated_at?: string
+  recipient_count?: number
   // 扩展字段（用于前端显示）
   notify_all?: boolean
   email_notification?: boolean
   email_sent?: boolean
+  recipient_user_ids?: number[]
   creator?: {
     id: number
     username: string
