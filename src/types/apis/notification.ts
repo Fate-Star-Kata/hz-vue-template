@@ -80,6 +80,26 @@ export interface SendEmailNotificationResponse {
   }
 }
 
+// 重发通知请求
+export interface NotificationResendReq {
+  notification_id: number
+  notify_all?: boolean
+  recipient_user_ids?: number[]
+  email_notification?: boolean
+}
+
+// 重发通知响应
+export interface NotificationResendResponse {
+  code: number
+  msg: string
+  data: {
+    notification_id: number
+    original_notification_id: number
+    notify_all: boolean
+    recipient_count: number
+  } | null
+}
+
 // 删除通知请求
 export interface DeleteNotificationReq {
   notification_ids: number[]

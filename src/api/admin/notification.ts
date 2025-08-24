@@ -11,7 +11,9 @@ import type {
   NotificationSettings,
   DeleteNotificationReq,
   SendEmailNotificationReq,
-  SendEmailNotificationResponse
+  SendEmailNotificationResponse,
+  NotificationResendReq,
+  NotificationResendResponse
 } from '@/types/factory'
 
 // 通知管理API
@@ -64,6 +66,10 @@ export const notificationApi = {
     return serviceAxios.post('/hzadmin/admin/notification/send_email/', data)
   },
 
+  // 重发通知
+  resendNotification: (data: NotificationResendReq): Promise<NotificationResendResponse> => {
+    return serviceAxios.post('/hzadmin/admin/notification/resend/', data)
+  },
 
 
   // 获取通知统计
