@@ -33,14 +33,8 @@ export const defaultMenuItems: MenuItem[] = [
   },
   {
     id: 'knowledge',
-    label: '历史',
+    label: '知识库',
     href: '/user/knowledge',
-    icon: null,
-  },
-  {
-    id: 'knowledge',
-    label: '通知',
-    href: '/user/notifications',
     icon: null,
   },
   {
@@ -76,9 +70,9 @@ export const adminMenuItems: AdminHeader[] = [
   },
   {
     id: "3",
-    title: "内容管理",
-    icon: "Document",
-    path: "/admin/content",
+    title: "通知管理",
+    icon: "Bell",
+    path: "/admin/notice",
   },
   {
     id: "4",
