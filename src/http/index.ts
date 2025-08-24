@@ -61,7 +61,10 @@ serviceAxios.interceptors.response.use(
     const data = res.data
     // 处理自己的业务逻辑，比如判断 token 是否过期等等
     // 代码块
-    if (data.code === 500) {
+    if (data.code === 401) {
+      router.push("/auth/login")
+      console.error("未登录或登录过期，请重新登录")
+    } else if (data.code === 500) {
       throw new Error("服务器处理异常")
     }
 
