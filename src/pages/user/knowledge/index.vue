@@ -115,8 +115,8 @@
     </section>
 
     <!-- 文章详情弹窗 -->
-    <dialog ref="articleModal" class="modal">
-      <div class="modal-box w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto">
+    <dialog ref="articleModal" class="modal" @click="closeModal">
+      <div class="modal-box w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto" @click.stop>
         <form method="dialog">
           <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
         </form>
@@ -132,7 +132,7 @@
           </div>
 
           <!-- 文章统计和操作 -->
-          <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg">
+          <div class="flex items-center justify-between p-4 bg-base-200 rounded-lg" style="">
             <div class="flex items-center gap-4 text-sm">
               <span v-if="selectedArticle.view_count">阅读: {{ selectedArticle.view_count }}</span>
               <span>点赞: {{ selectedArticle.like_count || 0 }}</span>
@@ -168,7 +168,7 @@
         </div>
       </div>
       <form method="dialog" class="modal-backdrop">
-        <button type="button" @click="closeModal">close</button>
+        <button>close</button>
       </form>
     </dialog>
   </div>
@@ -322,8 +322,6 @@ const formatDate = (dateString: string) => {
   marked.setOptions({
     breaks: true,
     gfm: true,
-    smartLists: true,
-    smartypants: false
   })
 
   // 计算属性：解析markdown内容

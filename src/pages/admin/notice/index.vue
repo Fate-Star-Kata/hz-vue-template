@@ -546,6 +546,7 @@ const loadAllUsers = async () => {
   try {
     const { getUsersAPI } = await import('@/api/admin/users')
     const response = await getUsersAPI({
+      query: '', // 空查询获取所有用户
       page: 1,
       page_size: 100 // 加载更多用户
     })

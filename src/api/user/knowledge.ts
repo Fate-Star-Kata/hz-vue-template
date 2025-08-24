@@ -1,4 +1,4 @@
-import type { 
+import type {
   KnowledgeCategoriesResponse,
   KnowledgeArticlesRequest,
   KnowledgeArticlesResponse,
@@ -36,6 +36,6 @@ export function getKnowledgeArticleDetail(id: number): Promise<KnowledgeArticleD
 export function likeKnowledgeArticle(id: number): Promise<KnowledgeArticleLikeResponse> {
   return serviceAxios({
     url: `/hzadmin/client/knowledge/articles/${id}/like/`,
-    method: 'get',
+    method: 'post',
   })
 }
