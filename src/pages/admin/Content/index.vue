@@ -164,7 +164,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="操作" width="140" align="center" fixed="right">
+          <el-table-column label="操作" width="180" align="center" fixed="right">
             <template #default="{ row }">
               <div class="action-cell">
                 <el-button-group size="small" class="action-button-group">
@@ -173,9 +173,14 @@
                       <Edit />
                     </el-icon>
                   </el-button>
-                  <el-button type="success" @click="handleSendToUsers(row.id)" size="small">
+                  <el-button type="primary" @click="handleResend(row.id)" size="small" title="选择用户重发">
                     <el-icon>
                       <UserFilled />
+                    </el-icon>
+                  </el-button>
+                  <el-button type="success" @click="handleResendAll(row.id)" size="small" title="全部重发">
+                    <el-icon>
+                      <Bell />
                     </el-icon>
                   </el-button>
                   <el-button type="danger" @click="handleDelete(row.id)" size="small">
@@ -276,8 +281,34 @@
       </template>
     </el-dialog>
 
-    <!-- 发送给特定用户对话框 -->
-    <el-dialog v-model="showSendToUserDialog" title="发送给特定用户" width="500px" :close-on-click-modal="false"
+    <!-- 重发通知（所有/指定）对话框 -->
+    <el-dialog v-model="showResendDialog" title="重复发送通知" width="520px" :close-on-click-modal="false" destroy-on-close align-center>
+      <div class="send-to-user-content">
+        <el-form label-width="120px">
+          <el-form-item label="发送范围">
+            <el-switch v-model="resendForm.notify_all" active-text="所有用户" inactive-text="指定用户" />
+          </el-form-item>
+          <el-form-item v-if="!resendForm.notify_all" label="选择用户">
+            <el-select v-model="resendForm.recipient_user_ids" multiple filterable remote reserve-keyword
+              placeholder="请选择要通知的用户" :remote-method="searchUsers" :loading="userSearchLoading" style="width: 100%">
+              <el-option v-for="user in userOptions" :key="user.id" :label="user.username" :value="user.id" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="邮件通知">
+            <el-switch v-model="resendForm.email_notification" active-text="发送邮件" inactive-text="不发送" />
+          </el-form-item>
+        </el-form>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="showResendDialog = false">取消</el-button>
+          <el-button type="primary" @click="handleResendSubmit">重发</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 重发给特定用户对话框（快捷） -->
+    <el-dialog v-model="showSendToUserDialog" title="重发给指定用户" width="500px" :close-on-click-modal="false"
       destroy-on-close align-center>
       <div class="send-to-user-content">
         <el-form label-width="100px">
@@ -287,13 +318,16 @@
               <el-option v-for="user in userOptions" :key="user.id" :label="user.username" :value="user.id" />
             </el-select>
           </el-form-item>
+          <el-form-item label="邮件通知">
+            <el-switch v-model="sendToUserForm.email_notification" active-text="发送邮件" inactive-text="不发送" />
+          </el-form-item>
         </el-form>
       </div>
 
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="showSendToUserDialog = false">取消</el-button>
-          <el-button type="primary" @click="handleSendToUsersSubmit">发送</el-button>
+          <el-button type="primary" @click="handleSendToUsersSubmit">重发</el-button>
         </div>
       </template>
     </el-dialog>
@@ -372,10 +406,22 @@ const notificationForm = reactive<CreateNotificationReq>({
 // 用户搜索相关
 const userSearchLoading = ref(false)
 const userOptions = ref<Array<{ id: number; username: string }>>([])
+
+// 重发（所有/指定）对话框
+const showResendDialog = ref(false)
+const resendForm = reactive({
+  notification_id: 0,
+  notify_all: false,
+  recipient_user_ids: [] as number[],
+  email_notification: false
+})
+
+// 重发给指定用户（快捷）
 const showSendToUserDialog = ref(false)
 const sendToUserForm = reactive({
   notification_id: 0,
-  recipient_user_ids: [] as number[]
+  recipient_user_ids: [] as number[],
+  email_notification: false
 })
 
 // 表单验证规则
@@ -590,10 +636,103 @@ const handleEdit = (id: string | number) => {
   }
 }
 
-// 发送通知给特定用户
+// 重发（所有/指定）
+const handleResend = async (id: string | number) => {
+  resendForm.notification_id = Number(id)
+  // 默认改为选择用户重发
+  resendForm.notify_all = false
+  resendForm.recipient_user_ids = []
+  resendForm.email_notification = false
+
+  // 预加载用户选项（便于切换到“指定用户”时立即可选）
+  try {
+    const { getUsersAPI } = await import('@/api/admin/users')
+    const response = await getUsersAPI({
+      query: '',
+      page: 1,
+      page_size: 100
+    })
+    if (response.data && response.data.users) {
+      userOptions.value = response.data.users.map(user => ({ id: user.id!, username: user.username }))
+    }
+  } catch (error) {
+    // 忽略预加载失败
+  }
+
+  showResendDialog.value = true
+}
+
+// 全部重发（快捷）
+const handleResendAll = async (id: string | number) => {
+  try {
+    await ElMessageBox.confirm('确定将该通知重发给所有用户吗？', '确认操作', {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+
+    const response = await notificationApi.resendNotification({
+      notification_id: Number(id),
+      notify_all: true,
+      email_notification: false
+    })
+
+    if (response.code === 200) {
+      const count = response.data?.recipient_count
+      ElMessage.success(response.msg || `已重发给所有用户${typeof count === 'number' ? `（共 ${count} 位）` : ''}`)
+      refreshData()
+    } else {
+      ElMessage.error(response.msg || '重发失败')
+    }
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      console.error('全部重发失败:', error)
+      ElMessage.error('全部重发失败，请重试')
+    }
+  }
+}
+
+const handleResendSubmit = async () => {
+  if (!resendForm.notify_all && resendForm.recipient_user_ids.length === 0) {
+    ElMessage.warning('请选择要通知的用户或切换为发送给所有用户')
+    return
+  }
+
+  try {
+    const payload: any = {
+      notification_id: resendForm.notification_id,
+      notify_all: resendForm.notify_all,
+      email_notification: resendForm.email_notification
+    }
+    if (!resendForm.notify_all) {
+      payload.recipient_user_ids = resendForm.recipient_user_ids
+    }
+
+    const response = await notificationApi.resendNotification(payload)
+    if (response.code === 200) {
+      const count = response.data?.recipient_count
+      ElMessage.success(response.msg || `重发成功${typeof count === 'number' ? `，共 ${count} 位用户` : ''}`)
+      showResendDialog.value = false
+      resendForm.notification_id = 0
+      resendForm.recipient_user_ids = []
+      resendForm.notify_all = false
+      resendForm.email_notification = false
+      userOptions.value = []
+      refreshData()
+    } else {
+      ElMessage.error(response.msg || '重发失败')
+    }
+  } catch (error) {
+    console.error('重发失败:', error)
+    ElMessage.error('重发失败，请重试')
+  }
+}
+
+// 发送通知给特定用户（快捷重发）
 const handleSendToUsers = async (id: string | number) => {
   sendToUserForm.notification_id = Number(id)
   sendToUserForm.recipient_user_ids = []
+  sendToUserForm.email_notification = false
 
   // 加载所有用户列表
   try {
@@ -618,7 +757,7 @@ const handleSendToUsers = async (id: string | number) => {
   showSendToUserDialog.value = true
 }
 
-// 提交发送给特定用户
+// 提交发送给特定用户（快捷重发）
 const handleSendToUsersSubmit = async () => {
   if (sendToUserForm.recipient_user_ids.length === 0) {
     ElMessage.warning('请选择要通知的用户')
@@ -626,38 +765,29 @@ const handleSendToUsersSubmit = async () => {
   }
 
   try {
-    // 获取原通知信息
-    const originalNotification = notificationList.value.find(item => item.id === sendToUserForm.notification_id)
-    if (!originalNotification) {
-      ElMessage.error('通知不存在')
-      return
-    }
-
-    // 使用创建通知接口，将现有通知内容发送给特定用户
-    const response = await notificationApi.createNotification({
-      title: ` ${originalNotification.title}`,
-      content: originalNotification.content,
-      is_public: false, // 设置为false，确保只有指定用户能看到
-      is_active: true,
+    const response = await notificationApi.resendNotification({
+      notification_id: sendToUserForm.notification_id,
       notify_all: false,
-      email_notification: originalNotification.email_notification ?? false,
-      recipient_user_ids: sendToUserForm.recipient_user_ids
+      recipient_user_ids: sendToUserForm.recipient_user_ids,
+      email_notification: sendToUserForm.email_notification
     })
 
     if (response.code === 200) {
-      ElMessage.success('通知发送成功')
+      const count = response.data?.recipient_count
+      ElMessage.success(response.msg || `重发成功${typeof count === 'number' ? `，共 ${count} 位用户` : ''}`)
       showSendToUserDialog.value = false
       sendToUserForm.notification_id = 0
       sendToUserForm.recipient_user_ids = []
+      sendToUserForm.email_notification = false
       userOptions.value = []
       // 刷新通知列表
       refreshData()
     } else {
-      ElMessage.error(response.msg || '发送失败')
+      ElMessage.error(response.msg || '重发失败')
     }
   } catch (error) {
     console.error('发送通知失败:', error)
-    ElMessage.error('发送失败，请重试')
+    ElMessage.error('重发失败，请重试')
   }
 }
 
