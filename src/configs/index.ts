@@ -26,12 +26,6 @@ export const defaultMenuItems: MenuItem[] = [
     hide: false,
   },
   {
-    id: 'stats',
-    label: 'menu.stats',
-    href: '/user/stats',
-    icon: null,
-  },
-  {
     id: 'knowledge',
     label: '知识库',
     href: '/user/knowledge',
