@@ -4,6 +4,10 @@ import { useElementPlusLocale } from '@/composables/useElementPlusLocale'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import Layout from './components/layout/index.vue'
+import GlobalLoading from '@/components/common/GlobalLoading.vue'
+import RequestLoading from '@/components/common/RequestLoading.vue'
+import { useLoadingStore } from '@/stores/common/loading'
+import { useRequestLoadingStore } from '@/stores/common/requestLoading'
 
 // 获取 Element Plus 国际化配置
 const { elementPlusLocale } = useElementPlusLocale()
@@ -15,6 +19,10 @@ const route = useRoute()
 const isAdminPage = computed(() => {
   return route.path.startsWith('/admin')
 })
+
+// 获取加载状态
+const loadingStore = useLoadingStore()
+const requestLoadingStore = useRequestLoadingStore()
 </script>
 
 <template>
@@ -26,6 +34,13 @@ const isAdminPage = computed(() => {
     <Layout v-else>
       <router-view />
     </Layout>
+
+    <!-- 全局加载动画 -->
+    <GlobalLoading :is-loading="loadingStore.isLoading" :text="loadingStore.loadingText"
+      :show-progress="loadingStore.showProgress" />
+
+    <!-- 网络请求加载动画 -->
+    <RequestLoading v-show="requestLoadingStore.isLoading" />
   </ElConfigProvider>
 </template>
 

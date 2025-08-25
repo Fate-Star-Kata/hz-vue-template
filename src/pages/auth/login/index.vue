@@ -6,6 +6,7 @@ import { ElMessage } from 'element-plus'
 import { onMounted, ref } from 'vue'
 import router from '@/router'
 import { useUserStore } from '@/stores/auth/user'
+import throttle from 'lodash/throttle';
 
 const store = useUserStore();
 const captchaImage = ref('')
@@ -36,6 +37,10 @@ const rules: LoginFormRules = {
     { len: 4, message: '验证码长度为 4 个字符', trigger: 'blur' },
   ],
 }
+
+const throttledFunction = throttle(() => {
+  refreshCaptcha()
+}, 10000);
 
 // 刷新验证码
 async function refreshCaptcha(): Promise<void> {
@@ -76,7 +81,7 @@ async function handleLogin(): Promise<void> {
     // 验证表单
     await loginFormRef.value.validate()
     loading.value = true
-    
+
     // 调用登录API
     const response: LoginResNoToken = await login(loginForm.value)
     if (response.code === 200 && response.data) {
@@ -85,7 +90,7 @@ async function handleLogin(): Promise<void> {
       if (userInfoResponse.code === 200 && userInfoResponse.data) {
         // 保存基本登录信息到store
         store.setUserInfo(response.data)
-        
+
         // 记住我功能：保存或清除用户名
         if (rememberMe.value) {
           localStorage.setItem('rememberedUsername', loginForm.value.username)
@@ -93,7 +98,7 @@ async function handleLogin(): Promise<void> {
           localStorage.removeItem('rememberedUsername')
         }
         ElMessage.success({ message: response.msg || '登录成功！', duration: 1000 })
-        
+
         // 根据用户的is_staff和is_superuser字段判断角色
         const { is_staff, is_superuser } = userInfoResponse.data
         if (is_staff || is_superuser) {
@@ -129,7 +134,7 @@ onMounted(() => {
   if (store.getUserInfo() != null) {
     store.setUserInfo(null)
   }
-  
+
   // 读取记住的用户名
   const rememberedUsername = localStorage.getItem('rememberedUsername')
   if (rememberedUsername) {
@@ -219,8 +224,8 @@ onMounted(() => {
                 <el-input v-model="loginForm.captcha_text" placeholder="请输入验证码" prefix-icon="Picture" maxlength="4"
                   clearable class="captcha-input" />
                 <div class="captcha-image-wrapper">
-                  <img v-if="captchaImage" :src="captchaImage" alt="验证码" class="captcha-image" @click="refreshCaptcha"
-                    title="点击刷新验证码" />
+                  <img v-if="captchaImage" :src="captchaImage" alt="验证码" class="captcha-image"
+                    @click="throttledFunction" title="点击刷新验证码" />
                   <div v-else class="captcha-placeholder" @click="refreshCaptcha">
                     <el-icon>
                       <Picture />
