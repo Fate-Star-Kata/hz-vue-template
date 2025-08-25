@@ -35,7 +35,7 @@ export const logsApi = {
 
   // 清空日志（按天数或日期范围）
   clearOperationLogs: (params: OperationLogsClearParams): Promise<OperationLogsClearResponse> => {
-    return serviceAxios.get('/hzadmin/admin/operation/logs/clear/', { params })
+    return serviceAxios.delete('/hzadmin/admin/operation/logs/clear/', { params })
   }
 }
 

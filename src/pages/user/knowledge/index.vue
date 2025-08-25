@@ -64,13 +64,25 @@
               class="card bg-base-100 shadow-sm hover:shadow-md transition rounded-2xl cursor-pointer transform hover:scale-105"
               @click="openArticle(article)">
               <figure class="px-6 pt-6">
-                <div
-                  class="w-full h-48 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 opacity-50" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
+                <div class="w-full h-48 rounded-xl overflow-hidden">
+                  <img 
+                    v-if="getImageUrl(article.image)" 
+                    :src="getImageUrl(article.image) || ''" 
+                    :alt="article.title"
+                    class="w-full h-full object-cover"
+                    @error="($event.target as HTMLElement)?.style && (($event.target as HTMLElement).style.display = 'none'); ($event.target as HTMLElement)?.nextElementSibling && (($event.target as HTMLElement).nextElementSibling as HTMLElement).style && ((($event.target as HTMLElement).nextElementSibling as HTMLElement).style.display = 'flex')"
+                  />
+                  <div
+                    :class="[
+                      'w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center',
+                      getImageUrl(article.image) ? 'hidden' : 'flex'
+                    ]">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 opacity-50" fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
                 </div>
               </figure>
               <div class="card-body">
@@ -122,6 +134,15 @@
         </form>
 
         <div v-if="selectedArticle" class="space-y-6">
+          <!-- 文章头图 -->
+          <div v-if="getImageUrl(selectedArticle.image)" class="w-full h-64 rounded-lg overflow-hidden">
+            <img 
+              :src="getImageUrl(selectedArticle.image) || ''" 
+              :alt="selectedArticle.title"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          
           <div class="space-y-2">
             <h3 class="font-bold text-2xl">{{ selectedArticle.title }}</h3>
             <div class="flex items-center gap-4 text-sm opacity-70">
@@ -180,6 +201,9 @@ import { Motion } from "motion-v";
 import { marked } from 'marked';
 import { getKnowledgeCategories, getKnowledgeArticles, getKnowledgeArticleDetail, likeKnowledgeArticle } from '@/api/user/knowledge'
 import type { KnowledgeCategory, KnowledgeArticle, KnowledgeArticleDetail } from '@/types/factory'
+
+// 获取服务器路径
+const serverPath = import.meta.env.VITE_SERVER_PATH || ''
 
 // RevealMotion 组件定义（复用首页的动画组件）
 type RevealProps = { delay?: number };
@@ -291,6 +315,13 @@ const loadArticles = async () => {
   } finally {
     loading.value = false
   }
+}
+
+// 获取完整图片URL的函数
+const getImageUrl = (imagePath: string | null) => {
+  if (!imagePath) return null
+  if (imagePath.startsWith('http')) return imagePath
+  return `${serverPath}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`
 }
 
 // 计算属性：过滤后的文章
