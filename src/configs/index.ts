@@ -30,6 +30,7 @@ export const defaultMenuItems: MenuItem[] = [
     label: 'menu.stats',
     href: '/user/stats',
     icon: null,
+    hide: true,
   },
   {
     id: 'knowledge',
@@ -95,12 +96,13 @@ export const adminMenuItems: AdminHeader[] = [
     icon: "FolderChecked",
     path: "/admin/files",
   },
-  // {
-  //   id: '6',
-  //   title: 'AI 助手',
-  //   icon: 'ChatDotRound',
-  //   path: '/admin/ai',
-  // },
+  {
+    id: '6',
+    title: 'AI 助手',
+    icon: 'ChatDotRound',
+    path: '/admin/ai',
+    hide: true
+  },
   {
     id: '7',
     title: '财务管理',
