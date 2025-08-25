@@ -6,7 +6,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import VueRouter from 'unplugin-vue-router/vite'
 import { defineConfig, loadEnv, mergeConfig } from 'vite'
-// import vueDevTools from 'vite-plugin-vue-devtools'
+import vueDevTools from 'vite-plugin-vue-devtools'
 import { devConfig } from './vite.config.dev'
 import { prodConfig } from './vite.config.prod'
 import autoprefixer from 'autoprefixer';
@@ -29,7 +29,11 @@ const baseConfig: UserConfig = {
       dts: './typed-router.d.ts',
     }),
     vue(),
+<<<<<<< HEAD
     // vueDevTools(),
+=======
+    vueDevTools(),
+>>>>>>> bee6515dbf633e5187b11e597279acf4775cc20f
     AutoImport({
       resolvers: [ElementPlusResolver()],
       imports: ['vue', 'vue-router'],
