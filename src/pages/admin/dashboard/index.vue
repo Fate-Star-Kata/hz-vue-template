@@ -148,7 +148,7 @@
                     'bg-yellow-100 text-yellow-800': process.memory_percent > 5 && process.memory_percent <= 10,
                     'bg-green-100 text-green-800': process.memory_percent <= 5
                   }">
-                    {{ process.memory_percent }}%
+                    {{ process.memory_percent.toFixed(2) }}%
                   </span>
                 </td>
                 <td class="px-2 py-1 text-xs text-gray-900">{{ formatBytes(process.memory_info?.rss || 0) }}</td>

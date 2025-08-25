@@ -31,7 +31,7 @@ const avatar = getUserAvatar
 // 动态面包屑数据
 const breadcrumbs = computed(() => {
   const currentPath = route.path
-  const breadcrumbItems = [{ label: '首页', path: '/' }]
+  const breadcrumbItems: { label: string; path?: string }[] = [{ label: '首页' }]
 
   // 递归查找菜单项
   const findMenuItem = (items: AdminHeader[], path: string): AdminHeader | null => {
@@ -76,7 +76,7 @@ const breadcrumbs = computed(() => {
       menuPath.forEach(item => {
         breadcrumbItems.push({
           label: item.title,
-          path: item.path
+          path: item.path as string
         })
       })
     } else {
@@ -85,7 +85,7 @@ const breadcrumbs = computed(() => {
       if (pathSegments.length > 1) {
         breadcrumbItems.push({
           label: pathSegments[pathSegments.length - 1],
-          path: currentPath
+          path: currentPath as string
         })
       }
     }
@@ -248,3 +248,4 @@ function toggleFullscreen() {
   margin-right: 8px;
 }
 </style>
+

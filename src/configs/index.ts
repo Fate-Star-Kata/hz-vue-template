@@ -37,18 +37,6 @@ export const defaultMenuItems: MenuItem[] = [
     href: '/user/knowledge',
     icon: null,
   },
-  {
-    id: 'system',
-    label: '系统监控',
-    href: '/user/system_film',
-    icon: null,
-  },
-  {
-    id: '',
-    label: '管理端',
-    href: '/admin',
-    icon: null
-  }
 ]
 
 // 管理后台菜单配置

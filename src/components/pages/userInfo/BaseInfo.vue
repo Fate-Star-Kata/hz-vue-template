@@ -1,44 +1,156 @@
 <template>
   <div class="base-info">
-    <el-form ref="formRef" :model="localUserInfo" :rules="rules" label-width="100px" v-if="localUserInfo">
-      <!-- 用户名 -->
-      <el-form-item label="用户名" prop="username">
-        <el-input v-model="localUserInfo.username" disabled placeholder="用户名" />
-      </el-form-item>
+    <el-form ref="formRef" :model="formData" :rules="rules" label-width="100px" v-if="formData">
+      <!-- 基本信息 -->
+      <div class="form-section">
+        <h4 class="section-title">基本信息</h4>
+        
+        <!-- 用户名 -->
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="formData.username" disabled placeholder="用户名" />
+        </el-form-item>
 
-      <!-- 邮箱 -->
-      <el-form-item label="邮箱" prop="email">
-        <el-input v-model="localUserInfo.email" type="email" placeholder="请输入邮箱" @input="updateUserInfo" />
-      </el-form-item>
+        <!-- 邮箱 -->
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="formData.email" type="email" placeholder="请输入邮箱" @input="updateUserInfo" />
+        </el-form-item>
 
-      <!-- 姓名 -->
-      <el-row :gutter="16">
-        <el-col :span="12">
-          <el-form-item label="姓" prop="first_name">
-            <el-input v-model="localUserInfo.first_name" placeholder="请输入姓" @input="updateUserInfo" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="名" prop="last_name">
-            <el-input v-model="localUserInfo.last_name" placeholder="请输入名" @input="updateUserInfo" />
-          </el-form-item>
-        </el-col>
-      </el-row>
+        <!-- 姓名 -->
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="姓" prop="first_name">
+              <el-input v-model="formData.first_name" placeholder="请输入姓" @input="updateUserInfo" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="名" prop="last_name">
+              <el-input v-model="formData.last_name" placeholder="请输入名" @input="updateUserInfo" />
+            </el-form-item>
+          </el-col>
+        </el-row>
 
-      <!-- 账户状态 -->
-      <el-form-item label="账户状态">
-        <el-switch v-model="localUserInfo.is_active" active-text="启用" inactive-text="禁用" :disabled="true" />
-      </el-form-item>
+        <!-- 账户状态 -->
+        <el-form-item label="账户状态">
+          <el-switch v-model="formData.is_active" active-text="启用" inactive-text="禁用" :disabled="true" />
+        </el-form-item>
+
+        <!-- 头像 -->
+        <el-form-item label="头像">
+          <div class="flex items-center space-x-4">
+            <el-avatar :size="40" :src="formData.user_info?.avatar" />
+            <span class="text-gray-500 text-sm">头像显示功能</span>
+          </div>
+        </el-form-item>
+      </div>
+
+      <!-- 个人详细信息 -->
+      <div class="form-section">
+        <h4 class="section-title">个人详细信息</h4>
+        
+        <!-- 手机号 -->
+        <el-form-item label="手机号" prop="user_info.phone">
+          <el-input v-model="formData.user_info.phone" placeholder="请输入手机号" @input="updateUserInfo" />
+        </el-form-item>
+
+        <!-- 性别 -->
+        <el-form-item label="性别" prop="user_info.gender">
+          <el-radio-group v-model="formData.user_info.gender" @change="updateUserInfo">
+            <el-radio label="male">男</el-radio>
+            <el-radio label="female">女</el-radio>
+            <el-radio label="other">其他</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <!-- 生日 -->
+        <el-form-item label="生日" prop="user_info.birthday">
+          <el-date-picker
+            v-model="formData.user_info.birthday"
+            type="date"
+            placeholder="请选择生日"
+            format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD"
+            @change="updateUserInfo"
+            style="width: 100%"
+          />
+        </el-form-item>
+
+        <!-- 详细地址 -->
+        <el-form-item label="详细地址" prop="user_info.address">
+          <el-input
+            v-model="formData.user_info.address"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入详细地址"
+            @input="updateUserInfo"
+          />
+        </el-form-item>
+
+        <!-- 个人简介 -->
+        <el-form-item label="个人简介" prop="user_info.bio">
+          <el-input
+            v-model="formData.user_info.bio"
+            type="textarea"
+            :rows="4"
+            placeholder="请输入个人简介"
+            maxlength="500"
+            show-word-limit
+            @input="updateUserInfo"
+          />
+        </el-form-item>
+      </div>
+
+      <!-- 社交信息 -->
+      <div class="form-section">
+        <h4 class="section-title">社交信息</h4>
+        
+        <!-- 微信 -->
+        <el-form-item label="微信号" prop="user_info.wechat">
+          <el-input v-model="formData.user_info.wechat" placeholder="请输入微信号" @input="updateUserInfo">
+            <template #prefix>
+              <el-icon><ChatDotRound /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+
+        <!-- QQ -->
+        <el-form-item label="QQ号" prop="user_info.qq">
+          <el-input v-model="formData.user_info.qq" placeholder="请输入QQ号" @input="updateUserInfo">
+            <template #prefix>
+              <el-icon><User /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+
+        <!-- 微博 -->
+        <el-form-item label="微博" prop="user_info.weibo">
+          <el-input v-model="formData.user_info.weibo" placeholder="请输入微博用户名" @input="updateUserInfo">
+            <template #prefix>
+              <el-icon><Share /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+
+        <!-- 个人网站 -->
+        <el-form-item label="个人网站" prop="user_info.personal_site">
+          <el-input v-model="formData.user_info.personal_site" placeholder="请输入个人网站地址" @input="updateUserInfo">
+            <template #prefix>
+              <el-icon><Link /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+      </div>
     </el-form>
     <div v-else class="loading-placeholder">
-      <el-skeleton :rows="4" animated />
+      <el-skeleton :rows="8" animated />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
+import { ChatDotRound, User, Share, Link } from '@element-plus/icons-vue'
+import type { GetUserDetailInfoResponse } from '@/types/apis/userinfo'
 
 // 定义组件名称
 defineOptions({
@@ -47,14 +159,14 @@ defineOptions({
 
 // Props
 interface Props {
-  userInfo?: any
+  userInfo: GetUserDetailInfoResponse | null
 }
 
 const props = defineProps<Props>()
 
 // Emits
 interface Emits {
-  'update:user-info': [userInfo: any]
+  (e: 'update:userInfo', userInfo: GetUserDetailInfoResponse): void
 }
 
 const emit = defineEmits<Emits>()
@@ -62,39 +174,77 @@ const emit = defineEmits<Emits>()
 // 表单引用
 const formRef = ref<FormInstance>()
 
-// 本地用户信息（用于双向绑定）
-const localUserInfo = computed({
-  get: () => props.userInfo,
-  set: (value) => {
-    emit('update:user-info', value)
-  }
-})
+// 表单数据
+const formData = ref<GetUserDetailInfoResponse | null>(null)
+
+// 监听 props 变化，更新表单数据
+watch(
+  () => props.userInfo,
+  (newUserInfo) => {
+    if (newUserInfo) {
+      formData.value = {
+        ...newUserInfo,
+        user_info: {
+
+          ...newUserInfo.user_info
+        }
+      }
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 // 表单验证规则
 const rules: FormRules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 3, max: 20, message: '用户名长度在 3 到 20 个字符', trigger: 'blur' }
+  ],
   email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+    { required: true, message: '请输入邮箱地址', trigger: 'blur' },
+    { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
   ],
   first_name: [
-    { max: 50, message: '姓不能超过50个字符', trigger: 'blur' }
+    { max: 30, message: '姓不能超过30个字符', trigger: 'blur' }
   ],
   last_name: [
-    { max: 50, message: '名不能超过50个字符', trigger: 'blur' }
+    { max: 30, message: '名不能超过30个字符', trigger: 'blur' }
+  ],
+  'user_info.phone': [
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+  ],
+  'user_info.qq': [
+    { pattern: /^[1-9][0-9]{4,10}$/, message: '请输入正确的QQ号', trigger: 'blur' }
+  ],
+  'user_info.personal_site': [
+    { type: 'url', message: '请输入正确的网站地址', trigger: 'blur' }
+  ],
+  'user_info.bio': [
+    { max: 500, message: '个人简介不能超过500个字符', trigger: 'blur' }
   ]
 }
 
 // 更新用户信息
 const updateUserInfo = () => {
-  if (localUserInfo.value) {
-    emit('update:user-info', { ...localUserInfo.value })
+  if (formData.value) {
+    emit('update:userInfo', formData.value)
   }
 }
 
-// 暴露表单验证方法给父组件
+// 验证表单
+const validateForm = async (): Promise<boolean> => {
+  if (!formRef.value) return false
+  try {
+    await formRef.value.validate()
+    return true
+  } catch {
+    return false
+  }
+}
+
+// 暴露验证方法给父组件
 defineExpose({
-  validate: () => formRef.value?.validate(),
-  resetFields: () => formRef.value?.resetFields()
+  validateForm
 })
 </script>
 
@@ -126,6 +276,43 @@ defineExpose({
 
   .loading-placeholder {
     padding: 20px;
+  }
+
+  .form-section {
+    margin-bottom: 32px;
+    padding: 20px;
+    background: #fafafa;
+    border-radius: 8px;
+    border: 1px solid #e4e7ed;
+  }
+
+  .section-title {
+    margin: 0 0 20px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #303133;
+    border-bottom: 2px solid #409eff;
+    padding-bottom: 8px;
+  }
+
+  .flex {
+    display: flex;
+  }
+
+  .items-center {
+    align-items: center;
+  }
+
+  .space-x-4 > * + * {
+    margin-left: 16px;
+  }
+
+  .text-gray-500 {
+    color: #909399;
+  }
+
+  .text-sm {
+    font-size: 14px;
   }
 
   .avatar-upload {

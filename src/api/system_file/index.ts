@@ -165,7 +165,7 @@ const getNetworkMonitor = (): Promise<ApiResponse<NetworkInfo>> => {
  * @returns Promise<ApiResponse<ProcessInfo>>
  */
 const getProcessMonitor = (params?: { limit?: number; sort_by?: string }): Promise<ApiResponse<ProcessInfo>> => {
-  return http.get('/hzadmin/client/monitor/network/', { params })
+  return http.get('/hzadmin/client/monitor/process/', { params })
 }
 
 /**

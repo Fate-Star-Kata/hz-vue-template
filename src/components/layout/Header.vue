@@ -180,8 +180,6 @@ onUnmounted(() => {
     </div>
     <div class="navbar-end">
       <div class="flex items-center gap-2">
-        <LanguageSwitch />
-        <ThemeSwitch />
 
         <!-- 铃铛按钮组件 -->
         <NotificationBell :unread-count="unreadCount" @click="showNotify = true" />
