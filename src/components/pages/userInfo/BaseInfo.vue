@@ -4,7 +4,7 @@
       <!-- 基本信息 -->
       <div class="form-section">
         <h4 class="section-title">基本信息</h4>
-        
+
         <!-- 用户名 -->
         <el-form-item label="用户名" prop="username">
           <el-input v-model="formData.username" disabled placeholder="用户名" />
@@ -40,103 +40,6 @@
             <el-avatar :size="40" :src="formData.user_info?.avatar" />
             <span class="text-gray-500 text-sm">头像显示功能</span>
           </div>
-        </el-form-item>
-      </div>
-
-      <!-- 个人详细信息 -->
-      <div class="form-section">
-        <h4 class="section-title">个人详细信息</h4>
-        
-        <!-- 手机号 -->
-        <el-form-item label="手机号" prop="user_info.phone">
-          <el-input v-model="formData.user_info.phone" placeholder="请输入手机号" @input="updateUserInfo" />
-        </el-form-item>
-
-        <!-- 性别 -->
-        <el-form-item label="性别" prop="user_info.gender">
-          <el-radio-group v-model="formData.user_info.gender" @change="updateUserInfo">
-            <el-radio label="male">男</el-radio>
-            <el-radio label="female">女</el-radio>
-            <el-radio label="other">其他</el-radio>
-          </el-radio-group>
-        </el-form-item>
-
-        <!-- 生日 -->
-        <el-form-item label="生日" prop="user_info.birthday">
-          <el-date-picker
-            v-model="formData.user_info.birthday"
-            type="date"
-            placeholder="请选择生日"
-            format="YYYY-MM-DD"
-            value-format="YYYY-MM-DD"
-            @change="updateUserInfo"
-            style="width: 100%"
-          />
-        </el-form-item>
-
-        <!-- 详细地址 -->
-        <el-form-item label="详细地址" prop="user_info.address">
-          <el-input
-            v-model="formData.user_info.address"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入详细地址"
-            @input="updateUserInfo"
-          />
-        </el-form-item>
-
-        <!-- 个人简介 -->
-        <el-form-item label="个人简介" prop="user_info.bio">
-          <el-input
-            v-model="formData.user_info.bio"
-            type="textarea"
-            :rows="4"
-            placeholder="请输入个人简介"
-            maxlength="500"
-            show-word-limit
-            @input="updateUserInfo"
-          />
-        </el-form-item>
-      </div>
-
-      <!-- 社交信息 -->
-      <div class="form-section">
-        <h4 class="section-title">社交信息</h4>
-        
-        <!-- 微信 -->
-        <el-form-item label="微信号" prop="user_info.wechat">
-          <el-input v-model="formData.user_info.wechat" placeholder="请输入微信号" @input="updateUserInfo">
-            <template #prefix>
-              <el-icon><ChatDotRound /></el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
-
-        <!-- QQ -->
-        <el-form-item label="QQ号" prop="user_info.qq">
-          <el-input v-model="formData.user_info.qq" placeholder="请输入QQ号" @input="updateUserInfo">
-            <template #prefix>
-              <el-icon><User /></el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
-
-        <!-- 微博 -->
-        <el-form-item label="微博" prop="user_info.weibo">
-          <el-input v-model="formData.user_info.weibo" placeholder="请输入微博用户名" @input="updateUserInfo">
-            <template #prefix>
-              <el-icon><Share /></el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
-
-        <!-- 个人网站 -->
-        <el-form-item label="个人网站" prop="user_info.personal_site">
-          <el-input v-model="formData.user_info.personal_site" placeholder="请输入个人网站地址" @input="updateUserInfo">
-            <template #prefix>
-              <el-icon><Link /></el-icon>
-            </template>
-          </el-input>
         </el-form-item>
       </div>
     </el-form>
@@ -251,10 +154,8 @@ defineExpose({
 <style scoped lang="scss">
 .base-info {
   background: white;
-  border-radius: 16px;
   padding: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(229, 231, 235, 0.8);
   transition: all 0.3s ease;
   animation: fadeIn 0.5s ease-in-out;
 
