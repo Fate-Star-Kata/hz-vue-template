@@ -1,6 +1,7 @@
 import axios from 'axios'
 import serverConfig from '@/configs'
 import router from '@/router'
+import { useRequestLoadingStore } from '@/stores/common/requestLoading'
 
 // 创建 axios 请求实例
 const serviceAxios = axios.create({
@@ -11,6 +12,10 @@ const serviceAxios = axios.create({
 // 创建请求拦截
 serviceAxios.interceptors.request.use(
   (config) => {
+    // 显示请求加载动画
+    const requestLoadingStore = useRequestLoadingStore()
+    requestLoadingStore.showLoading('请求中...')
+
     // 如果开启 token 认证
     if (serverConfig.useTokenAuthorization) {
       config.headers.Authorization = localStorage.getItem('token') // 请求头携带 token
@@ -58,6 +63,10 @@ serviceAxios.interceptors.request.use(
 // 创建响应拦截
 serviceAxios.interceptors.response.use(
   (res) => {
+    // 隐藏请求加载动画
+    const requestLoadingStore = useRequestLoadingStore()
+    requestLoadingStore.hideLoading()
+
     const data = res.data
     // 处理自己的业务逻辑，比如判断 token 是否过期等等
     // 代码块
@@ -71,6 +80,10 @@ serviceAxios.interceptors.response.use(
     return data
   },
   (error) => {
+    // 隐藏请求加载动画
+    const requestLoadingStore = useRequestLoadingStore()
+    requestLoadingStore.hideLoading()
+
     let message = ''
     if (error && error.response) {
       switch (error.response.status) {

@@ -1,6 +1,7 @@
 // src/router/index.ts
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { routes } from 'vue-router/auto-routes'
+import { useLoadingStore } from '@/stores/common/loading'
 
 type AutoRoute = {
   path?: string
@@ -95,6 +96,30 @@ function buildRoutes() {
 const router = createRouter({
   history: createWebHistory(),
   routes: buildRoutes() as RouteRecordRaw[]
+})
+
+// 全局导航守卫 - 路由加载动画
+router.beforeEach((to, from, next) => {
+  // 只有在不同路由之间跳转时才显示加载动画
+  if (to.path !== from.path) {
+    // 延迟获取 store，确保 Pinia 已初始化
+    setTimeout(() => {
+      const loadingStore = useLoadingStore()
+      loadingStore.showLoading('页面加载中', true)
+    }, 0)
+  }
+  next()
+})
+
+router.afterEach((to, from) => {
+  // 路由跳转完成后隐藏加载动画
+  if (to.path !== from.path) {
+    // 延迟隐藏，确保页面内容已加载
+    setTimeout(() => {
+      const loadingStore = useLoadingStore()
+      loadingStore.hideLoading()
+    }, 800)
+  }
 })
 
 export default router

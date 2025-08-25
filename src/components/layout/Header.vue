@@ -182,7 +182,7 @@ onUnmounted(() => {
       <div class="flex items-center gap-2">
 
         <!-- 铃铛按钮组件 -->
-        <NotificationBell :unread-count="unreadCount" @click="showNotify = true" />
+        <NotificationBell v-if="userInfo?.username" :unread-count="unreadCount" @click="showNotify = true" />
 
         <!-- 用户头像显示区域 -->
         <div class="dropdown dropdown-end" v-if="userInfo?.username">

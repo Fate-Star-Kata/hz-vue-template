@@ -22,7 +22,8 @@
               <div v-for="(percent, index) in cpuInfo.cpu_percent.slice(0, 4)" :key="index" class="flex items-center">
                 <span class="text-xs text-gray-500 w-8">{{ index + 1 }}</span>
                 <div class="flex-1 bg-gray-200 rounded-full h-1.5 mx-1">
-                  <div class="bg-blue-600 h-1.5 rounded-full transition-all duration-300" :style="{ width: percent + '%' }"></div>
+                  <div class="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                    :style="{ width: percent + '%' }"></div>
                 </div>
                 <span class="text-xs text-gray-600 w-8">{{ percent }}%</span>
               </div>
@@ -41,7 +42,8 @@
               <span>{{ memoryInfo.memory?.percent || 0 }}%</span>
             </div>
             <div class="bg-gray-200 rounded-full h-2">
-              <div class="bg-green-600 h-2 rounded-full transition-all duration-300" :style="{ width: (memoryInfo.memory?.percent || 0) + '%' }"></div>
+              <div class="bg-green-600 h-2 rounded-full transition-all duration-300"
+                :style="{ width: (memoryInfo.memory?.percent || 0) + '%' }"></div>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs">
@@ -61,13 +63,15 @@
       <div class="bg-white rounded-lg shadow-md p-3">
         <h3 class="text-sm font-semibold text-gray-800 mb-2">磁盘监控</h3>
         <div class="space-y-2">
-          <div v-for="disk in diskInfo.disk_info.slice(0, 2)" :key="disk.device" class="border-b border-gray-100 pb-2 last:border-b-0">
+          <div v-for="disk in diskInfo.disk_info.slice(0, 2)" :key="disk.device"
+            class="border-b border-gray-100 pb-2 last:border-b-0">
             <div class="flex justify-between items-center mb-1">
               <span class="text-xs font-medium text-gray-800">{{ disk.device }}</span>
               <span class="text-xs text-gray-600">{{ disk.percent }}%</span>
             </div>
             <div class="bg-gray-200 rounded-full h-1.5 mb-1">
-              <div class="bg-yellow-600 h-1.5 rounded-full transition-all duration-300" :style="{ width: disk.percent + '%' }"></div>
+              <div class="bg-yellow-600 h-1.5 rounded-full transition-all duration-300"
+                :style="{ width: disk.percent + '%' }"></div>
             </div>
             <div class="text-xs text-gray-600">
               <div class="flex justify-between">
@@ -83,11 +87,12 @@
       <div class="bg-white rounded-lg shadow-md p-3">
         <h3 class="text-sm font-semibold text-gray-800 mb-2">系统状态</h3>
         <div v-if="systemOverview.alerts && systemOverview.alerts.length" class="space-y-1">
-          <div v-for="(alert, index) in systemOverview.alerts.slice(0, 3)" :key="index" class="flex items-center p-2 rounded text-xs" :class="{
-            'bg-yellow-50 border border-yellow-200': alert.type === 'warning',
-            'bg-red-50 border border-red-200': alert.type === 'error',
-            'bg-blue-50 border border-blue-200': alert.type === 'info'
-          }">
+          <div v-for="(alert, index) in systemOverview.alerts.slice(0, 3)" :key="index"
+            class="flex items-center p-2 rounded text-xs" :class="{
+              'bg-yellow-50 border border-yellow-200': alert.type === 'warning',
+              'bg-red-50 border border-red-200': alert.type === 'error',
+              'bg-blue-50 border border-blue-200': alert.type === 'info'
+            }">
             <div class="flex-1">
               <p class="font-medium" :class="{
                 'text-yellow-800': alert.type === 'warning',
@@ -107,11 +112,13 @@
         <div class="flex justify-between items-center mb-2">
           <h3 class="text-sm font-semibold text-gray-800">进程监控 (总数: {{ processInfo.total_processes || 0 }})</h3>
           <div class="flex space-x-2">
-            <select v-model="processSortBy" @change="fetchProcessInfo" class="text-xs border border-gray-300 rounded px-1 py-0.5">
+            <select v-model="processSortBy" @change="fetchProcessInfo"
+              class="text-xs border border-gray-300 rounded px-1 py-0.5">
               <option value="cpu_percent">按CPU排序</option>
               <option value="memory_percent">按内存排序</option>
             </select>
-            <select v-model="processLimit" @change="fetchProcessInfo" class="text-xs border border-gray-300 rounded px-1 py-0.5">
+            <select v-model="processLimit" @change="fetchProcessInfo"
+              class="text-xs border border-gray-300 rounded px-1 py-0.5">
               <option value="10">显示10个</option>
               <option value="15">显示15个</option>
             </select>
@@ -171,24 +178,29 @@
     </div>
 
     <!-- 底部状态栏 -->
-     <div class="absolute bottom-2 left-4 right-4 flex justify-between items-center bg-white rounded-lg shadow-md px-3 py-1">
-       <div class="text-xs text-gray-600">
-         最后更新: {{ lastUpdateTime || 'N/A' }}
-       </div>
-       <div class="flex space-x-2 items-center">
-         <button @click="refreshAllData" :disabled="loading" class="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-           <svg v-if="loading" class="animate-spin -ml-1 mr-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-           </svg>
-           {{ loading ? '刷新中...' : '刷新' }}
-         </button>
-         <label class="flex items-center text-xs">
-            <input type="checkbox" v-model="autoRefresh" @change="toggleAutoRefresh" class="mr-1">
-            <span class="text-xs text-gray-600">自动刷新 ({{ refreshInterval / 1000 }}s)</span>
-          </label>
-        </div>
+    <div
+      class="absolute bottom-2 left-4 right-4 flex justify-between items-center bg-white rounded-lg shadow-md px-3 py-1">
+      <div class="text-xs text-gray-600">
+        最后更新: {{ lastUpdateTime || 'N/A' }}
       </div>
+      <div class="flex space-x-2 items-center">
+        <button @click="refreshAllData" :disabled="loading"
+          class="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+          <svg v-if="loading" class="animate-spin -ml-1 mr-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+          {{ loading ? '刷新中...' : '刷新' }}
+        </button>
+        <label class="flex items-center text-xs">
+          <input type="checkbox" v-model="autoRefresh" @change="toggleAutoRefresh" class="mr-1">
+          <span class="text-xs text-gray-600">自动刷新 ({{ refreshInterval / 1000 }}s)</span>
+        </label>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -200,7 +212,7 @@ import { monitorApi } from '@/api/system_file'
 const loading = ref(false)
 const lastUpdateTime = ref('')
 const autoRefresh = ref(true)
-const refreshInterval = ref(5000) // 5秒刷新间隔
+const refreshInterval = ref(30000) // 30秒刷新间隔
 let refreshTimer = null
 
 // 监控数据
@@ -384,6 +396,7 @@ onUnmounted(() => {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
