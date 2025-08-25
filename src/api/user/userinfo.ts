@@ -1,5 +1,4 @@
 import type {
-  UserDetailInfo,
   GetUserDetailInfoResponse,
   UpdateUserInfoRequest,
   UpdateUserInfoResponse,

@@ -36,8 +36,7 @@ const requestLoadingStore = useRequestLoadingStore()
     </Layout>
 
     <!-- 全局加载动画 -->
-    <GlobalLoading :is-loading="loadingStore.isLoading" :text="loadingStore.loadingText"
-      :show-progress="loadingStore.showProgress" />
+    <GlobalLoading :is-loading="loadingStore.isLoading" :show-progress="loadingStore.showProgress" />
 
     <!-- 网络请求加载动画 -->
     <RequestLoading v-show="requestLoadingStore.isLoading" />

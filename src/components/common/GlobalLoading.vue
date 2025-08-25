@@ -3,16 +3,7 @@
     <div v-if="isLoading" class="global-loading-overlay">
       <div class="loading-container">
         <!-- 主要加载动画 -->
-        <div class="loading-spinner">
-          <div class="spinner-ring"></div>
-          <div class="spinner-ring"></div>
-          <div class="spinner-ring"></div>
-        </div>
-
-        <!-- 加载文本 -->
-        <div class="loading-text">
-          <span class="loading-dots">{{ loadingText }}</span>
-        </div>
+        <component :is="serverConfig.VITE_APP_LOGO" v-if="serverConfig.VITE_APP_LOGO" size="80px" />
 
         <!-- 进度条 -->
         <div class="progress-bar">
@@ -25,6 +16,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onUnmounted, watch, toRefs } from 'vue'
+import serverConfig from '@/configs/index'
 
 interface Props {
   isLoading?: boolean
@@ -39,14 +31,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const progress = ref(0)
-const dotCount = ref(0)
 let progressInterval: ReturnType<typeof setInterval> | null = null
-let dotsInterval: ReturnType<typeof setInterval> | null = null
-
-const loadingText = computed(() => {
-  const dots = '.'.repeat(dotCount.value)
-  return props.text + dots
-})
 
 // 模拟进度条动画
 const startProgress = () => {
@@ -67,37 +52,21 @@ const completeProgress = () => {
   progress.value = 100
 }
 
-// 点点动画
-const startDotsAnimation = () => {
-  dotsInterval = setInterval(() => {
-    dotCount.value = (dotCount.value + 1) % 4
-  }, 500)
-}
+
 
 // 监听加载状态变化
 const { isLoading } = toRefs(props)
 watch(isLoading, (newVal) => {
   if (newVal) {
     startProgress()
-    startDotsAnimation()
   } else {
     completeProgress()
-    setTimeout(() => {
-      if (dotsInterval) {
-        clearInterval(dotsInterval)
-        dotsInterval = null
-      }
-      dotCount.value = 0
-    }, 300)
   }
 })
 
 onUnmounted(() => {
   if (progressInterval) {
     clearInterval(progressInterval)
-  }
-  if (dotsInterval) {
-    clearInterval(dotsInterval)
   }
 })
 </script>
@@ -140,11 +109,31 @@ onUnmounted(() => {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 加载动画 */
-.loading-spinner {
+/* Logo 动画 */
+.logo-animation {
+  animation: logo-pulse 2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+@keyframes logo-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+/* 备用环形动画 */
+.fallback-spinner {
   position: relative;
-  width: 60px;
-  height: 60px;
+  width: 100%;
+  height: 100%;
 }
 
 .spinner-ring {
@@ -183,30 +172,13 @@ onUnmounted(() => {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
 
-/* 加载文本 */
-.loading-text {
-  font-size: 16px;
-  font-weight: 500;
-  color: #374151;
-  min-height: 24px;
-  display: flex;
-  align-items: center;
-}
 
-.dark .loading-text {
-  color: #d1d5db;
-}
-
-.loading-dots {
-  display: inline-block;
-  min-width: 80px;
-  text-align: left;
-}
 
 /* 进度条 */
 .progress-bar {
@@ -234,9 +206,11 @@ onUnmounted(() => {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -274,8 +248,6 @@ onUnmounted(() => {
     width: 160px;
   }
 
-  .loading-text {
-    font-size: 14px;
-  }
+
 }
 </style>
