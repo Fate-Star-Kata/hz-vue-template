@@ -169,7 +169,7 @@ onUnmounted(() => {
           <MenuItems :menu-items="menuItems" />
         </ul>
       </div>
-      <component :is="icon" class="w-8 h-8" size="20px" />
+      <component :is="icon" size="50px" />
       <a href="/" class="btn btn-ghost text-xl">{{ serverConfig.VITE_APP_TITLE }}</a>
       <search />
     </div>
