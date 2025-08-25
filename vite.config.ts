@@ -29,11 +29,7 @@ const baseConfig: UserConfig = {
       dts: './typed-router.d.ts',
     }),
     vue(),
-<<<<<<< HEAD
-    // vueDevTools(),
-=======
     vueDevTools(),
->>>>>>> bee6515dbf633e5187b11e597279acf4775cc20f
     AutoImport({
       resolvers: [ElementPlusResolver()],
       imports: ['vue', 'vue-router'],

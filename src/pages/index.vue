@@ -41,7 +41,7 @@
 
     <!-- 页脚 -->
     <footer class="border-t border-base-200 py-4 text-center text-sm opacity-70">
-      © 2025 Your Company. All rights reserved.
+      {{ footerText }}
     </footer>
   </div>
 </template>
@@ -55,6 +55,8 @@
  */
 import { h, defineComponent, onMounted, onBeforeUnmount, ref, computed } from "vue";
 import { Motion } from "motion-v";
+
+const footerText = import.meta.env.VITE_APP_FOOTER || "版权所有 © 2025 HZSYSTEM";
 
 type RevealProps = { delay?: number };
 const RevealMotion = defineComponent<RevealProps>({

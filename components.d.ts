@@ -75,6 +75,7 @@ declare module 'vue' {
     LanguageSwitch: typeof import('./src/components/layout/btns/LanguageSwitch.vue')['default']
     LanguageSwitcher: typeof import('./src/components/LanguageSwitcher.vue')['default']
     Layout: typeof import('./src/components/layout/index.vue')['default']
+    Logo: typeof import('./src/components/icon/logo.vue')['default']
     Map: typeof import('./src/components/icon/map.vue')['default']
     MenuItems: typeof import('./src/components/layout/MenuItems.vue')['default']
     Navbar: typeof import('./src/components/pages/admin/navbar.vue')['default']
