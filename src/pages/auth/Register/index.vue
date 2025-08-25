@@ -6,6 +6,7 @@ import { UserFilled, Check, Refresh, RefreshLeft } from '@element-plus/icons-vue
 import type { RegisterForm, RegisterRequest, RegisterResponse } from '@/types/apis/auth'
 import type { CaptchaResponse } from '@/types/apis/auth'
 import { register, getCaptCha } from '@/api/user'
+import serverConfig from '@/configs'
 
 const router = useRouter()
 
@@ -161,10 +162,10 @@ onMounted(() => {
           <div class="logo-section">
             <div class="logo-icon">
               <el-icon size="48">
-                <UserFilled />
+                <component :is="serverConfig.VITE_APP_LOGO" v-if="serverConfig.VITE_APP_LOGO" size="80px" />
               </el-icon>
             </div>
-            <h1 class="brand-title">HZSystem</h1>
+            <h1 class="brand-title">{{ serverConfig.VITE_APP_TITLE }}</h1>
           </div>
 
           <div class="welcome-text">

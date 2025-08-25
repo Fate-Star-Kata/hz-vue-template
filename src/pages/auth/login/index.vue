@@ -7,6 +7,7 @@ import { onMounted, ref } from 'vue'
 import router from '@/router'
 import { useUserStore } from '@/stores/auth/user'
 import throttle from 'lodash/throttle';
+import serverConfig from '../../../configs/index';
 
 const store = useUserStore();
 const captchaImage = ref('')
@@ -20,8 +21,6 @@ const loginForm = ref<LoginReq>({
   captcha_text: '',
 })
 
-// 记住我功能
-const rememberMe = ref(false)
 // 表单验证规则
 const rules: LoginFormRules = {
   username: [
@@ -91,14 +90,6 @@ async function handleLogin(): Promise<void> {
         // 保存基本登录信息到store
         store.setUserInfo(response.data)
 
-        // 记住我功能：保存或清除用户名
-        if (rememberMe.value) {
-          localStorage.setItem('rememberedUsername', loginForm.value.username)
-        } else {
-          localStorage.removeItem('rememberedUsername')
-        }
-        ElMessage.success({ message: response.msg || '登录成功！', duration: 1000 })
-
         // 根据用户的is_staff和is_superuser字段判断角色
         const { is_staff, is_superuser } = userInfoResponse.data
         if (is_staff || is_superuser) {
@@ -134,13 +125,6 @@ onMounted(() => {
   if (store.getUserInfo() != null) {
     store.setUserInfo(null)
   }
-
-  // 读取记住的用户名
-  const rememberedUsername = localStorage.getItem('rememberedUsername')
-  if (rememberedUsername) {
-    loginForm.value.username = rememberedUsername
-    rememberMe.value = true
-  }
 })
 </script>
 
@@ -161,10 +145,10 @@ onMounted(() => {
           <div class="logo-section">
             <div class="logo-icon">
               <el-icon size="48">
-                <User />
+                <component :is="serverConfig.VITE_APP_LOGO" v-if="serverConfig.VITE_APP_LOGO" size="80px" />
               </el-icon>
             </div>
-            <h1 class="brand-title">HZSystem</h1>
+            <h1 class="brand-title">{{ serverConfig.VITE_APP_TITLE }}</h1>
           </div>
 
           <div class="welcome-text">
@@ -236,12 +220,6 @@ onMounted(() => {
               </div>
             </el-form-item>
 
-            <!-- 记住我 -->
-            <div class="remember-me-container">
-              <el-checkbox v-model="rememberMe" class="remember-me-checkbox">
-                记住我
-              </el-checkbox>
-            </div>
             <!-- 登录按钮 -->
             <div class="form-actions">
               <el-button type="primary" size="large" :loading="loading" @click="handleLogin" class="submit-btn">
