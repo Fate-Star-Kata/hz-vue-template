@@ -50,15 +50,15 @@ export interface UpdateUserInfoRequest {
   is_active: boolean
   user_info: {
     avatar: string
-    phone: string
-    wechat: string
-    qq: string
-    weibo: string
-    personal_site: string
-    bio: string
-    address: string
-    birthday: string
-    gender: 'male' | 'female' | 'other'
+    phone?: string
+    wechat?: string
+    qq?: string
+    weibo?: string
+    personal_site?: string
+    bio?: string
+    address?: string
+    birthday?: string
+    gender?: 'male' | 'female' | 'other'
   }
 }
 

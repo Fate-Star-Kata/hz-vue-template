@@ -4,7 +4,7 @@ import { Motion } from 'motion-v'
 import { useUserStore } from '@/stores/auth/user'
 import { storeToRefs } from 'pinia'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { User, Message, Edit, Phone, Link, Location, Calendar, Male, Female } from '@element-plus/icons-vue'
+import { User, Message, Edit } from '@element-plus/icons-vue'
 import { getCurrentUserInfo } from '@/api/user/index'
 import { updateUserInfo } from '@/api/user/userinfo'
 import type { UpdateUserInfoRequest } from '@/types/factory'
@@ -28,16 +28,7 @@ if (!userInfo.value) {
     last_name: '',
     is_active: true,
     user_info: {
-      avatar: '',
-      phone: '',
-      wechat: '',
-      qq: '',
-      weibo: '',
-      personal_site: '',
-      bio: '',
-      address: '',
-      birthday: '',
-      gender: 'other'
+      avatar: ''
     }
   }
 }
@@ -63,16 +54,7 @@ const saving = ref(false)
 const initUserInfo = () => {
   if (userInfo.value && !userInfo.value.user_info) {
     userInfo.value.user_info = {
-      avatar: '',
-      phone: '',
-      wechat: '',
-      qq: '',
-      weibo: '',
-      personal_site: '',
-      bio: '',
-      address: '',
-      birthday: '',
-      gender: 'other'
+      avatar: ''
     }
   }
 }
@@ -127,16 +109,7 @@ async function saveProfile() {
       last_name: userInfo.value.last_name || '',
       is_active: userInfo.value.is_active as boolean,
       user_info: {
-        avatar: userInfo.value.user_info?.avatar || '',
-        phone: userInfo.value.user_info?.phone || '',
-        wechat: userInfo.value.user_info?.wechat || '',
-        qq: userInfo.value.user_info?.qq || '',
-        weibo: userInfo.value.user_info?.weibo || '',
-        personal_site: userInfo.value.user_info?.personal_site || '',
-        bio: userInfo.value.user_info?.bio || '',
-        address: userInfo.value.user_info?.address || '',
-        birthday: userInfo.value.user_info?.birthday || '',
-        gender: userInfo.value.user_info?.gender || 'other'
+        avatar: userInfo.value.user_info?.avatar || ''
       }
     }
 
@@ -229,36 +202,6 @@ onMounted(() => {
                   </el-icon>
                   <span class="text-gray-600">{{ userInfo.email }}</span>
                 </div>
-
-                <div class="flex items-center text-sm" v-if="userInfo?.user_info?.phone">
-                  <el-icon class="mr-2 text-gray-400">
-                    <Phone />
-                  </el-icon>
-                  <span class="text-gray-600">{{ userInfo.user_info.phone }}</span>
-                </div>
-
-                <div class="flex items-center text-sm" v-if="userInfo?.user_info?.address">
-                  <el-icon class="mr-2 text-gray-400">
-                    <Location />
-                  </el-icon>
-                  <span class="text-gray-600">{{ userInfo.user_info.address }}</span>
-                </div>
-
-                <div class="flex items-center text-sm" v-if="userInfo?.user_info?.birthday">
-                  <el-icon class="mr-2 text-gray-400">
-                    <Calendar />
-                  </el-icon>
-                  <span class="text-gray-600">{{ userInfo.user_info.birthday }}</span>
-                </div>
-
-                <div class="flex items-center text-sm" v-if="userInfo?.user_info?.personal_site">
-                  <el-icon class="mr-2 text-gray-400">
-                    <Link />
-                  </el-icon>
-                  <a :href="userInfo.user_info.personal_site" target="_blank" class="text-blue-500 hover:text-blue-700">
-                    个人网站
-                  </a>
-                </div>
               </div>
             </el-card>
           </Motion>
@@ -318,11 +261,6 @@ onMounted(() => {
                     <el-form-item label="账户状态">
                       <el-switch v-model="userInfo.is_active" active-text="启用" inactive-text="禁用" :disabled="true" />
                     </el-form-item>
-                  </div>
-
-                  <!-- 个人详细信息 -->
-                  <div class="form-section">
-                    <h4 class="section-title">个人详细信息</h4>
 
                     <el-form-item label="头像">
                       <div class="flex items-center space-x-4">
@@ -330,80 +268,8 @@ onMounted(() => {
                         <span class="text-gray-500 text-sm">头像显示功能</span>
                       </div>
                     </el-form-item>
-
-                    <el-form-item label="手机号">
-                      <el-input v-model="userInfo.user_info!.phone" placeholder="请输入手机号" :prefix-icon="Phone" />
-                    </el-form-item>
-
-                    <el-form-item label="个人简介">
-                      <el-input v-model="userInfo.user_info!.bio" type="textarea" :rows="3" placeholder="请输入个人简介" />
-                    </el-form-item>
-
-                    <el-form-item label="地址">
-                      <el-input v-model="userInfo.user_info!.address" placeholder="请输入地址" :prefix-icon="Location" />
-                    </el-form-item>
-
-                    <el-row :gutter="16">
-                      <el-col :span="12">
-                        <el-form-item label="生日">
-                          <el-date-picker v-model="userInfo.user_info!.birthday" type="date" placeholder="选择生日"
-                            format="YYYY-MM-DD" value-format="YYYY-MM-DD" style="width: 100%" />
-                        </el-form-item>
-                      </el-col>
-                      <el-col :span="12">
-                        <el-form-item label="性别">
-                          <el-select v-model="userInfo.user_info!.gender" placeholder="请选择性别" style="width: 100%">
-                            <el-option label="男" value="male">
-                              <div class="flex items-center">
-                                <el-icon class="mr-2">
-                                  <Male />
-                                </el-icon>
-                                <span>男</span>
-                              </div>
-                            </el-option>
-                            <el-option label="女" value="female">
-                              <div class="flex items-center">
-                                <el-icon class="mr-2">
-                                  <Female />
-                                </el-icon>
-                                <span>女</span>
-                              </div>
-                            </el-option>
-                            <el-option label="其他" value="other">
-                              <span>其他</span>
-                            </el-option>
-                          </el-select>
-                        </el-form-item>
-                      </el-col>
-                    </el-row>
                   </div>
 
-                  <!-- 社交信息 -->
-                  <div class="form-section">
-                    <h4 class="section-title">社交信息</h4>
-
-                    <el-form-item label="个人网站">
-                      <el-input v-model="userInfo.user_info!.personal_site" placeholder="请输入个人网站地址"
-                        :prefix-icon="Link" />
-                    </el-form-item>
-
-                    <el-row :gutter="16">
-                      <el-col :span="12">
-                        <el-form-item label="微信号">
-                          <el-input v-model="userInfo.user_info!.wechat" placeholder="请输入微信号" />
-                        </el-form-item>
-                      </el-col>
-                      <el-col :span="12">
-                        <el-form-item label="QQ号">
-                          <el-input v-model="userInfo.user_info!.qq" placeholder="请输入QQ号" />
-                        </el-form-item>
-                      </el-col>
-                    </el-row>
-
-                    <el-form-item class="mt-5" label="微博">
-                      <el-input v-model="userInfo.user_info!.weibo" placeholder="请输入微博账号" />
-                    </el-form-item>
-                  </div>
                 </el-form>
                 <div v-else class="text-center py-8 text-gray-500">
                   用户信息加载中...

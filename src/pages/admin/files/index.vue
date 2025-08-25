@@ -290,6 +290,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { uploadFile } from '@/api/common/file'
+import { getUploadUrl } from '@/api/admin/files'
 import {
   Upload,
   View,
@@ -503,8 +505,13 @@ const deleteFile = async (file: FileItem) => {
 const handleFileUpload = async (files: File[]) => {
   loading.upload = true
   try {
-    // 这里可以添加批量上传逻辑
-    // 目前使用FileUpload组件内部的上传逻辑
+    const uploadUrl = getUploadUrl()
+    await Promise.all(files.map(file => uploadFile(file, uploadUrl)))
+    ElMessage.success('上传成功')
+
+    handleUploadSuccess()
+
+    showUploadDialog.value = false
   } catch (error) {
     ElMessage.error('上传失败')
   } finally {
@@ -512,9 +519,10 @@ const handleFileUpload = async (files: File[]) => {
   }
 }
 
-const handleUploadSuccess = (response: any) => {
-  ElMessage.success('上传成功')
-  loadFileList()
+const handleUploadSuccess = (response?: any) => {
+  setTimeout(async () => {
+    await loadFileList()
+  }, 2000)
   showUploadDialog.value = false
 }
 
@@ -1343,3 +1351,4 @@ onUnmounted(() => {
   }
 }
 </style>
+

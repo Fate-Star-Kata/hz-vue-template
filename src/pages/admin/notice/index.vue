@@ -129,27 +129,6 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="状态" width="120" align="center">
-            <template #default="{ row }">
-              <div class="status-cell">
-                <el-tag :type="row.is_public ? 'success' : 'warning'" size="small">
-                  {{ row.is_public ? '公开' : '私有' }}
-                </el-tag>
-              </div>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="启用状态" width="100" align="center">
-            <template #default="{ row }">
-              <el-tag :type="row.is_active ? 'success' : 'danger'" size="small">
-                <el-icon class="mr-1">
-                  <CircleCheckFilled v-if="row.is_active" />
-                  <CircleCloseFilled v-else />
-                </el-icon>
-                {{ row.is_active ? '启用' : '禁用' }}
-              </el-tag>
-            </template>
-          </el-table-column>
 
 
 
