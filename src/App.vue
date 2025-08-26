@@ -46,7 +46,6 @@ const requestLoadingStore = useRequestLoadingStore()
     <!-- 网络请求加载动画 -->
     <RequestLoading v-if="reqShosw" />
 
-    <!-- <RequestLoading v-show="requestLoadingStore.isLoading" /> -->
   </ElConfigProvider>
 </template>
 
