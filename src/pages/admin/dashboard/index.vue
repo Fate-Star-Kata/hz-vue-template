@@ -7,174 +7,28 @@
 
     <!-- 监控信息网格布局 -->
     <div class="grid grid-cols-4 gap-3 h-[calc(100vh-120px)]">
-      <!-- CPU监控 -->
-      <div class="bg-white rounded-lg shadow-md p-3">
-        <h3 class="text-sm font-semibold text-gray-800 mb-2">CPU监控</h3>
-        <div class="space-y-2">
-          <div class="text-xs text-gray-600">
-            <div class="flex justify-between mb-1">
-              <span>核心数: {{ cpuInfo.cpu_count || 0 }}</span>
-              <span>{{ cpuInfo.cpu_freq?.current || 0 }} MHz</span>
-            </div>
-          </div>
-          <div v-if="cpuInfo.cpu_percent && cpuInfo.cpu_percent.length">
-            <div class="space-y-1">
-              <div v-for="(percent, index) in cpuInfo.cpu_percent.slice(0, 4)" :key="index" class="flex items-center">
-                <span class="text-xs text-gray-500 w-8">{{ index + 1 }}</span>
-                <div class="flex-1 bg-gray-200 rounded-full h-1.5 mx-1">
-                  <div class="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
-                    :style="{ width: percent + '%' }"></div>
-                </div>
-                <span class="text-xs text-gray-600 w-8">{{ percent }}%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- CPU监控组件 -->
+      <CpuMonitor :cpu-info="cpuInfo" :loading="loading" />
 
-      <!-- 内存监控 -->
-      <div class="bg-white rounded-lg shadow-md p-3">
-        <h3 class="text-sm font-semibold text-gray-800 mb-2">内存监控</h3>
-        <div class="space-y-2">
-          <div>
-            <div class="flex justify-between text-xs text-gray-600 mb-1">
-              <span>使用率</span>
-              <span>{{ memoryInfo.memory?.percent || 0 }}%</span>
-            </div>
-            <div class="bg-gray-200 rounded-full h-2">
-              <div class="bg-green-600 h-2 rounded-full transition-all duration-300"
-                :style="{ width: (memoryInfo.memory?.percent || 0) + '%' }"></div>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div>
-              <p class="text-gray-600">总内存</p>
-              <p class="font-semibold">{{ formatBytes(memoryInfo.memory?.total || 0) }}</p>
-            </div>
-            <div>
-              <p class="text-gray-600">已使用</p>
-              <p class="font-semibold">{{ formatBytes(memoryInfo.memory?.used || 0) }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- 内存监控组件 -->
+      <MemoryMonitor :memory-info="memoryInfo" :loading="loading" />
 
-      <!-- 磁盘监控 -->
-      <div class="bg-white rounded-lg shadow-md p-3">
-        <h3 class="text-sm font-semibold text-gray-800 mb-2">磁盘监控</h3>
-        <div class="space-y-2">
-          <div v-for="disk in diskInfo.disk_info.slice(0, 2)" :key="disk.device"
-            class="border-b border-gray-100 pb-2 last:border-b-0">
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-xs font-medium text-gray-800">{{ disk.device }}</span>
-              <span class="text-xs text-gray-600">{{ disk.percent }}%</span>
-            </div>
-            <div class="bg-gray-200 rounded-full h-1.5 mb-1">
-              <div class="bg-yellow-600 h-1.5 rounded-full transition-all duration-300"
-                :style="{ width: disk.percent + '%' }"></div>
-            </div>
-            <div class="text-xs text-gray-600">
-              <div class="flex justify-between">
-                <span>{{ formatBytes(disk.used) }}</span>
-                <span>{{ formatBytes(disk.total) }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- 磁盘监控组件 -->
+      <DiskMonitor :disk-info="diskInfo" :loading="loading" />
 
-      <!-- 系统警告 -->
-      <div class="bg-white rounded-lg shadow-md p-3">
-        <h3 class="text-sm font-semibold text-gray-800 mb-2">系统状态</h3>
-        <div v-if="systemOverview.alerts && systemOverview.alerts.length" class="space-y-1">
-          <div v-for="(alert, index) in systemOverview.alerts.slice(0, 3)" :key="index"
-            class="flex items-center p-2 rounded text-xs" :class="{
-              'bg-yellow-50 border border-yellow-200': alert.type === 'warning',
-              'bg-red-50 border border-red-200': alert.type === 'error',
-              'bg-blue-50 border border-blue-200': alert.type === 'info'
-            }">
-            <div class="flex-1">
-              <p class="font-medium" :class="{
-                'text-yellow-800': alert.type === 'warning',
-                'text-red-800': alert.type === 'error',
-                'text-blue-800': alert.type === 'info'
-              }">{{ alert.message }}</p>
-            </div>
-          </div>
-        </div>
-        <div v-else class="text-xs text-gray-500 text-center py-4">
-          系统运行正常
-        </div>
-      </div>
+      <!-- 系统状态组件 -->
+      <SystemStatus :system-overview="systemOverview" :loading="loading" />
 
-      <!-- 进程监控 -->
-      <div class="bg-white rounded-lg shadow-md p-3 col-span-4">
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-sm font-semibold text-gray-800">进程监控 (总数: {{ processInfo.total_processes || 0 }})</h3>
-          <div class="flex space-x-2">
-            <select v-model="processSortBy" @change="fetchProcessInfo"
-              class="text-xs border border-gray-300 rounded px-1 py-0.5">
-              <option value="cpu_percent">按CPU排序</option>
-              <option value="memory_percent">按内存排序</option>
-            </select>
-            <select v-model="processLimit" @change="fetchProcessInfo"
-              class="text-xs border border-gray-300 rounded px-1 py-0.5">
-              <option value="10">显示10个</option>
-              <option value="15">显示15个</option>
-            </select>
-          </div>
-        </div>
-        <div class="overflow-hidden">
-          <table class="w-full">
-            <thead>
-              <tr class="bg-gray-50">
-                <th class="px-2 py-1 text-left text-xs font-medium text-gray-500">PID</th>
-                <th class="px-2 py-1 text-left text-xs font-medium text-gray-500">进程名</th>
-                <th class="px-2 py-1 text-left text-xs font-medium text-gray-500">CPU%</th>
-                <th class="px-2 py-1 text-left text-xs font-medium text-gray-500">内存%</th>
-                <th class="px-2 py-1 text-left text-xs font-medium text-gray-500">内存使用</th>
-                <th class="px-2 py-1 text-left text-xs font-medium text-gray-500">状态</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-100">
-              <tr v-for="process in processInfo.processes" :key="process.pid" class="hover:bg-gray-50">
-                <td class="px-2 py-1 text-xs text-gray-900">{{ process.pid }}</td>
-                <td class="px-2 py-1 text-xs text-gray-900 truncate max-w-32">{{ process.name }}</td>
-                <td class="px-2 py-1 text-xs">
-                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium" :class="{
-                    'bg-red-100 text-red-800': process.cpu_percent > 50,
-                    'bg-yellow-100 text-yellow-800': process.cpu_percent > 20 && process.cpu_percent <= 50,
-                    'bg-green-100 text-green-800': process.cpu_percent <= 20
-                  }">
-                    {{ process.cpu_percent }}%
-                  </span>
-                </td>
-                <td class="px-2 py-1 text-xs">
-                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium" :class="{
-                    'bg-red-100 text-red-800': process.memory_percent > 10,
-                    'bg-yellow-100 text-yellow-800': process.memory_percent > 5 && process.memory_percent <= 10,
-                    'bg-green-100 text-green-800': process.memory_percent <= 5
-                  }">
-                    {{ process.memory_percent.toFixed(2) }}%
-                  </span>
-                </td>
-                <td class="px-2 py-1 text-xs text-gray-900">{{ formatBytes(process.memory_info?.rss || 0) }}</td>
-                <td class="px-2 py-1 text-xs">
-                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium" :class="{
-                    'bg-green-100 text-green-800': process.status === 'running',
-                    'bg-yellow-100 text-yellow-800': process.status === 'sleeping',
-                    'bg-red-100 text-red-800': process.status === 'stopped'
-                  }">
-                    {{ process.status }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-
+      <!-- 进程监控组件 -->
+      <ProcessMonitor 
+        :process-info="processInfo" 
+        :process-sort-by="processSortBy"
+        :process-limit="processLimit"
+        :loading="loading"
+        @update-sort="updateProcessSort"
+        @update-limit="updateProcessLimit"
+        class="col-span-4" 
+      />
     </div>
 
     <!-- 底部状态栏 -->
@@ -207,6 +61,13 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { monitorApi } from '@/api/system_file'
+
+// 导入子组件
+import CpuMonitor from '@/components/pages/admin/dashboard/CpuMonitor.vue'
+import MemoryMonitor from '@/components/pages/admin/dashboard/MemoryMonitor.vue'
+import DiskMonitor from '@/components/pages/admin/dashboard/DiskMonitor.vue'
+import SystemStatus from '@/components/pages/admin/dashboard/SystemStatus.vue'
+import ProcessMonitor from '@/components/pages/admin/dashboard/ProcessMonitor.vue'
 
 // 响应式数据
 const loading = ref(false)
@@ -368,6 +229,17 @@ const stopAutoRefresh = () => {
     clearInterval(refreshTimer)
     refreshTimer = null
   }
+}
+
+// 进程监控事件处理
+const updateProcessSort = (sortBy) => {
+  processSortBy.value = sortBy
+  fetchProcessInfo()
+}
+
+const updateProcessLimit = (limit) => {
+  processLimit.value = limit
+  fetchProcessInfo()
 }
 
 // 生命周期
