@@ -9,10 +9,22 @@ const FileUploadUrl: string = (import.meta.env.VITE_FILE_UPLOAD_URL as string)
 let VITE_APP_LOGO
 
 try {
-  VITE_APP_LOGO = defineAsyncComponent(() =>
-    import(`@/components/icon/${import.meta.env.VITE_APP_LOGO}.vue`)
-  )
-} catch {
+  const logoName = import.meta.env.VITE_APP_LOGO
+  if (logoName) {
+    VITE_APP_LOGO = defineAsyncComponent({
+      loader: () => import(`@/components/icon/${logoName}.vue`),
+      errorComponent: () => null,
+      loadingComponent: () => null,
+      onError: (error, _retry, fail, _attempts) => {
+        console.warn(`Failed to load logo component: ${logoName}`, error)
+        fail()
+      }
+    })
+  } else {
+    VITE_APP_LOGO = null
+  }
+} catch (error) {
+  console.warn('Error setting up logo component:', error)
   VITE_APP_LOGO = null
 }
 
@@ -172,7 +184,7 @@ export const adminMenuItems: AdminHeader[] = [
 ];
 
 const serverConfig = {
-  baseURL: '/api', // 请求基础地址,可根据环境自定义
+  baseURL: import.meta.env.MODE === 'development' ? '/api' : (import.meta.env.VITE_SERVER_PATH || '/api'),
 
   useTokenAuthorization: false, // 是否开启 token 认证
 
