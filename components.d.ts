@@ -8,12 +8,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddUserDialog: typeof import('./src/components/pages/admin/userManage/AddUserDialog.vue')['default']
     BaseInfo: typeof import('./src/components/pages/userInfo/BaseInfo.vue')['default']
     CaptchaConfig: typeof import('./src/components/pages/admin/systemConfig/CaptchaConfig.vue')['default']
     ChangePassword: typeof import('./src/components/pages/userInfo/ChangePassword.vue')['default']
     ColorThemeSwitch: typeof import('./src/components/layout/btns/ColorThemeSwitch.vue')['default']
     CpuMonitor: typeof import('./src/components/pages/admin/dashboard/CpuMonitor.vue')['default']
     DiskMonitor: typeof import('./src/components/pages/admin/dashboard/DiskMonitor.vue')['default']
+    EditUserDialog: typeof import('./src/components/pages/admin/userManage/EditUserDialog.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElBadge: typeof import('element-plus/es')['ElBadge']
@@ -62,10 +64,7 @@ declare module 'vue' {
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
-    ElTabPane: typeof import('element-plus/es')['ElTabPane']
-    ElTabs: typeof import('element-plus/es')['ElTabs']
     ElTag: typeof import('element-plus/es')['ElTag']
-    ElText: typeof import('element-plus/es')['ElText']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     ElUpload: typeof import('element-plus/es')['ElUpload']
     EmailConfig: typeof import('./src/components/pages/admin/systemConfig/EmailConfig.vue')['default']
@@ -77,7 +76,11 @@ declare module 'vue' {
     LanguageSwitch: typeof import('./src/components/layout/btns/LanguageSwitch.vue')['default']
     LanguageSwitcher: typeof import('./src/components/LanguageSwitcher.vue')['default']
     Layout: typeof import('./src/components/layout/index.vue')['default']
+    LogDetailDrawer: typeof import('./src/components/pages/admin/log/LogDetailDrawer.vue')['default']
     Logo: typeof import('./src/components/icon/logo.vue')['default']
+    LogPagination: typeof import('./src/components/pages/admin/log/LogPagination.vue')['default']
+    LogSearchForm: typeof import('./src/components/pages/admin/log/LogSearchForm.vue')['default']
+    LogTable: typeof import('./src/components/pages/admin/log/LogTable.vue')['default']
     Map: typeof import('./src/components/icon/map.vue')['default']
     MemoryMonitor: typeof import('./src/components/pages/admin/dashboard/MemoryMonitor.vue')['default']
     MenuItems: typeof import('./src/components/layout/MenuItems.vue')['default']
@@ -95,6 +98,9 @@ declare module 'vue' {
     SwitchDark: typeof import('./src/components/icon/switchDark.vue')['default']
     SystemStatus: typeof import('./src/components/pages/admin/dashboard/SystemStatus.vue')['default']
     ThemeSwitch: typeof import('./src/components/layout/btns/ThemeSwitch.vue')['default']
+    UserPagination: typeof import('./src/components/pages/admin/userManage/UserPagination.vue')['default']
+    UserSearchForm: typeof import('./src/components/pages/admin/userManage/UserSearchForm.vue')['default']
+    UserTable: typeof import('./src/components/pages/admin/userManage/UserTable.vue')['default']
   }
   export interface GlobalDirectives {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']
