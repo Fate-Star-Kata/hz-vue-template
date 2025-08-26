@@ -39,7 +39,7 @@ const requestLoadingStore = useRequestLoadingStore()
     <GlobalLoading :is-loading="loadingStore.isLoading" :show-progress="loadingStore.showProgress" />
 
     <!-- 网络请求加载动画 -->
-    <RequestLoading v-show="requestLoadingStore.isLoading" />
+    <!-- <RequestLoading v-show="false" /> -->
   </ElConfigProvider>
 </template>
 
