@@ -8,12 +8,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddUserDialog: typeof import('./src/components/pages/admin/userManage/AddUserDialog.vue')['default']
     BaseInfo: typeof import('./src/components/pages/userInfo/BaseInfo.vue')['default']
     CaptchaConfig: typeof import('./src/components/pages/admin/systemConfig/CaptchaConfig.vue')['default']
     ChangePassword: typeof import('./src/components/pages/userInfo/ChangePassword.vue')['default']
     ColorThemeSwitch: typeof import('./src/components/layout/btns/ColorThemeSwitch.vue')['default']
     CpuMonitor: typeof import('./src/components/pages/admin/dashboard/CpuMonitor.vue')['default']
     DiskMonitor: typeof import('./src/components/pages/admin/dashboard/DiskMonitor.vue')['default']
+    EditUserDialog: typeof import('./src/components/pages/admin/userManage/EditUserDialog.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElBadge: typeof import('element-plus/es')['ElBadge']
@@ -94,6 +96,9 @@ declare module 'vue' {
     SwitchDark: typeof import('./src/components/icon/switchDark.vue')['default']
     SystemStatus: typeof import('./src/components/pages/admin/dashboard/SystemStatus.vue')['default']
     ThemeSwitch: typeof import('./src/components/layout/btns/ThemeSwitch.vue')['default']
+    UserPagination: typeof import('./src/components/pages/admin/userManage/UserPagination.vue')['default']
+    UserSearchForm: typeof import('./src/components/pages/admin/userManage/UserSearchForm.vue')['default']
+    UserTable: typeof import('./src/components/pages/admin/userManage/UserTable.vue')['default']
   }
   export interface GlobalDirectives {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']

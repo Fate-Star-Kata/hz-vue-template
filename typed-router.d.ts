@@ -30,8 +30,6 @@ declare module 'vue-router/auto-routes' {
     '/admin/settings/': RouteRecordInfo<'/admin/settings/', '/admin/settings', Record<never, never>, Record<never, never>>,
     '/admin/systemConfig/': RouteRecordInfo<'/admin/systemConfig/', '/admin/systemConfig', Record<never, never>, Record<never, never>>,
     '/admin/userManage/': RouteRecordInfo<'/admin/userManage/', '/admin/userManage', Record<never, never>, Record<never, never>>,
-    '/admin/userManage/AddUserDialog': RouteRecordInfo<'/admin/userManage/AddUserDialog', '/admin/userManage/AddUserDialog', Record<never, never>, Record<never, never>>,
-    '/admin/userManage/EditUserDialog': RouteRecordInfo<'/admin/userManage/EditUserDialog', '/admin/userManage/EditUserDialog', Record<never, never>, Record<never, never>>,
     '/auth/login/': RouteRecordInfo<'/auth/login/', '/auth/login', Record<never, never>, Record<never, never>>,
     '/auth/Register/': RouteRecordInfo<'/auth/Register/', '/auth/Register', Record<never, never>, Record<never, never>>,
     '/templates/': RouteRecordInfo<'/templates/', '/templates', Record<never, never>, Record<never, never>>,
@@ -105,14 +103,6 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/admin/userManage/index.vue': {
       routes: '/admin/userManage/'
-      views: never
-    }
-    'src/pages/admin/userManage/AddUserDialog.vue': {
-      routes: '/admin/userManage/AddUserDialog'
-      views: never
-    }
-    'src/pages/admin/userManage/EditUserDialog.vue': {
-      routes: '/admin/userManage/EditUserDialog'
       views: never
     }
     'src/pages/auth/login/index.vue': {
