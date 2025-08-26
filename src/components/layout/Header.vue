@@ -89,7 +89,7 @@ const userMenuItems = ref([
   {
     title: '个人资料',
     class: 'justify-between',
-    badge: '新',
+    badge: null,
     event: () => {
       console.log('跳转到个人资料页面')
       router.push('/userInfo')
@@ -98,6 +98,7 @@ const userMenuItems = ref([
   {
     title: '设置',
     class: '',
+    badge: '新',
     hide: true,
     event: () => {
       console.log('跳转到设置页面')
