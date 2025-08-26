@@ -29,6 +29,7 @@ declare module 'vue-router/auto-routes' {
     '/admin/profile/': RouteRecordInfo<'/admin/profile/', '/admin/profile', Record<never, never>, Record<never, never>>,
     '/admin/settings/': RouteRecordInfo<'/admin/settings/', '/admin/settings', Record<never, never>, Record<never, never>>,
     '/admin/systemConfig/': RouteRecordInfo<'/admin/systemConfig/', '/admin/systemConfig', Record<never, never>, Record<never, never>>,
+    '/admin/SystemMonitoring/': RouteRecordInfo<'/admin/SystemMonitoring/', '/admin/SystemMonitoring', Record<never, never>, Record<never, never>>,
     '/admin/userManage/': RouteRecordInfo<'/admin/userManage/', '/admin/userManage', Record<never, never>, Record<never, never>>,
     '/auth/login/': RouteRecordInfo<'/auth/login/', '/auth/login', Record<never, never>, Record<never, never>>,
     '/auth/Register/': RouteRecordInfo<'/auth/Register/', '/auth/Register', Record<never, never>, Record<never, never>>,
@@ -99,6 +100,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/admin/systemConfig/index.vue': {
       routes: '/admin/systemConfig/'
+      views: never
+    }
+    'src/pages/admin/SystemMonitoring/index.vue': {
+      routes: '/admin/SystemMonitoring/'
       views: never
     }
     'src/pages/admin/userManage/index.vue': {

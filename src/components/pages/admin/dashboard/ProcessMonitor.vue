@@ -7,7 +7,7 @@
         <span class="text-xs text-gray-600">数据更新中...</span>
       </div>
     </div>
-    
+
     <div class="flex justify-between items-center mb-2">
       <h3 class="text-sm font-semibold text-gray-800">进程监控 (总数: {{ processInfo.total_processes || 0 }})</h3>
       <div class="flex space-x-2">

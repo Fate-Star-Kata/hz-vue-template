@@ -1,5 +1,5 @@
 // 用户详细信息类型
-export interface UserDetailInfo {
+export interface UserInfoDetailInfo {
   id: number
   username: string
   email: string
@@ -66,7 +66,7 @@ export interface UpdateUserInfoRequest {
 export interface UpdateUserInfoResponse {
   code: number
   msg: string
-  data?: UserDetailInfo
+  data?: UserInfoDetailInfo
 }
 
 // 修改密码请求类型
