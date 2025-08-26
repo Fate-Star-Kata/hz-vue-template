@@ -11,15 +11,8 @@
     </div>
 
     <div class="table-container">
-      <el-table 
-        :data="logList" 
-        border 
-        stripe 
-        style="width: 100%" 
-        :loading="loading"
-        @selection-change="onSelectionChange" 
-        height="100%"
-      >
+      <el-table :data="logList" border stripe style="width: 100%" :loading="loading"
+        @selection-change="onSelectionChange">
         <el-table-column type="selection" width="50" />
         <el-table-column prop="id" label="ID" width="80" align="center" />
         <el-table-column prop="user.username" label="用户" min-width="120">
@@ -117,7 +110,6 @@ function handleDelete(id: number) {
 <style scoped>
 .log-table-container {
   position: relative;
-  height: 100%;
 }
 
 .loading-overlay {
@@ -143,10 +135,6 @@ function handleDelete(id: number) {
   font-size: 14px;
 }
 
-.table-container {
-  height: 100%;
-}
-
 .time-cell {
   display: flex;
   align-items: center;
@@ -169,3 +157,4 @@ function handleDelete(id: number) {
   gap: 4px;
 }
 </style>
+
