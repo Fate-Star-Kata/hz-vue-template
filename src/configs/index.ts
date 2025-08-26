@@ -45,9 +45,15 @@ export const adminMenuItems: AdminHeader[] = [
   {
     id: "1",
     title: "仪表板",
-    icon: "Odometer",
+    icon: "Cpu",
     path: "/admin/dashboard",
   },
+  // {
+  //   id: "1",
+  //   title: "仪表板",
+  //   icon: "Odometer",
+  //   path: "/admin/dashboard",
+  // },
   {
     id: "2",
     title: "用户管理",

@@ -37,7 +37,7 @@
         <!-- 头像 -->
         <el-form-item label="头像">
           <div class="flex items-center space-x-4">
-            <el-avatar :size="40" :src="formData.user_info?.avatar" />
+            <el-avatar :size="40" :src="userStore.getUserAvatar.value" />
             <span class="text-gray-500 text-sm">头像显示功能</span>
           </div>
         </el-form-item>
@@ -54,6 +54,9 @@ import { ref, computed, watch } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ChatDotRound, User, Share, Link } from '@element-plus/icons-vue'
 import type { GetUserDetailInfoResponse } from '@/types/apis/userinfo'
+import { useUserStore } from '@/stores/auth/user'
+import { storeToRefs } from 'pinia'
+const userStore = storeToRefs(useUserStore())
 
 // 定义组件名称
 defineOptions({
@@ -169,6 +172,7 @@ defineExpose({
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -204,7 +208,7 @@ defineExpose({
     align-items: center;
   }
 
-  .space-x-4 > * + * {
+  .space-x-4>*+* {
     margin-left: 16px;
   }
 
