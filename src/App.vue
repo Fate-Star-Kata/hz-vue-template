@@ -21,7 +21,6 @@ const isAdminPage = computed(() => {
 })
 
 const reqShosw = computed(() => {
-  console.log((requestLoadingStore.isLoading && !route.path.startsWith('/admin')))
   return (requestLoadingStore.isLoading && !route.path.startsWith('/admin'))
 })
 
@@ -43,7 +42,7 @@ const requestLoadingStore = useRequestLoadingStore()
     <!-- 全局加载动画 -->
     <GlobalLoading :is-loading="loadingStore.isLoading" :show-progress="loadingStore.showProgress" />
 
-    <!-- 网络请求加载动画 -->
+    <!-- TODO 查看生产环境vif是否异常 网络请求加载动画 -->
     <RequestLoading v-if="reqShosw" />
 
   </ElConfigProvider>

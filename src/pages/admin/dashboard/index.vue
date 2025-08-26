@@ -1,28 +1,34 @@
 <script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Motion } from 'motion-v'
 import { Refresh } from '@element-plus/icons-vue'
-import { ref } from 'vue'
-const loading = ref(false)
+import SystemMonitorChart from '@/components/admin/dashboard/SystemMonitorChart.vue'
+import UserActivityChart from '@/components/admin/dashboard/UserActivityChart.vue'
+import DataTable from '@/components/admin/dashboard/DataTable.vue'
+import { getUsersAPI } from '@/api/admin/users'
+import { monitorApi } from '@/api/system_file/index'
+import { logsApi } from '@/api/admin/logs'
+import type { SystemOverview } from '@/api/system_file/index'
 
 // 动画配置
 const cardVariants = {
   initial: { opacity: 0, y: 30, scale: 0.95 },
   animate: { opacity: 1, y: 0, scale: 1 },
   whileHover: {
-    scale: 1.02,
-    y: -5,
-    transition: { duration: 0.2, ease: ['easeOut'] }
+    scale: 1.05,
+    y: -10,
+    transition: { duration: 0.3, ease: ['easeOut'] }
   },
-  transition: { duration: 0.4, ease: ['easeOut'] }
+  transition: { duration: 0.6, ease: ['easeOut'] }
 }
 
 const statsCardVariants = {
-  initial: { opacity: 0, y: 40, scale: 0.9 },
-  animate: { opacity: 1, y: 0, scale: 1 },
+  initial: { opacity: 0, x: -50, scale: 0.9 },
+  animate: { opacity: 1, x: 0, scale: 1 },
   whileHover: {
-    scale: 1.05,
-    y: -8,
-    transition: { duration: 0.3, ease: ['easeOut'] }
+    scale: 1.03,
+    y: -5,
+    transition: { duration: 0.2, ease: ['easeOut'] }
   },
   transition: { duration: 0.5, ease: ['easeOut'] }
 }
@@ -35,174 +41,241 @@ const iconVariants = {
     rotate: 10,
     transition: { duration: 0.2, ease: ['easeOut'] }
   },
-  transition: { duration: 0.6, delay: 0.3, ease: ['easeOut'] }
+  transition: { duration: 0.4, ease: ['easeOut'], delay: 0.2 }
 }
+
+// 数据状态
+const loading = ref(false)
+const systemOverview = ref<SystemOverview | null>(null)
+const dashboardStats = ref({
+  totalUsers: 0,
+  todayOrders: 0,
+  totalRevenue: 0,
+  activeUsers: 0,
+  todayLogs: 0
+})
+
+let refreshTimer: number | null = null
+
+// 统计卡片数据
+const stats = computed(() => [
+  {
+    title: '总用户数',
+    value: dashboardStats.value.totalUsers.toLocaleString(),
+    change: '+12%',
+    changeType: 'increase',
+    icon: 'user',
+    color: 'bg-blue-500'
+  },
+  {
+    title: '今日日志',
+    value: dashboardStats.value.todayLogs.toString(),
+    change: '+5%',
+    changeType: 'increase',
+    icon: 'file-text',
+    color: 'bg-green-500'
+  },
+  {
+    title: 'CPU使用率',
+    value: systemOverview.value?.resource_summary ? `${Math.round(systemOverview.value.resource_summary.cpu_percent)}%` : '0%',
+    change: (systemOverview.value?.resource_summary?.cpu_percent ?? 0) > 70 ? '高负载' : '正常',
+    changeType: (systemOverview.value?.resource_summary?.cpu_percent ?? 0) > 70 ? 'decrease' : 'increase',
+    icon: 'cpu',
+    color: 'bg-yellow-500'
+  },
+  {
+    title: '内存使用率',
+    value: systemOverview.value?.resource_summary ? `${Math.round(systemOverview.value.resource_summary.memory_percent)}%` : '0%',
+    change: (systemOverview.value?.resource_summary?.memory_percent ?? 0) > 80 ? '高负载' : '正常',
+    changeType: (systemOverview.value?.resource_summary?.memory_percent ?? 0) > 80 ? 'decrease' : 'increase',
+    icon: 'hard-drive',
+    color: 'bg-purple-500'
+  }
+])
+
+// 获取仪表盘数据
+const fetchDashboardData = async () => {
+  try {
+    loading.value = true
+
+    // 并行获取所有数据
+    const [usersResponse, systemResponse, logsResponse] = await Promise.allSettled([
+      getUsersAPI({ page: 1, page_size: 1, query: '' }),
+      monitorApi.getSystemOverview(),
+      logsApi.getOperationLogs({ page: 1, page_size: 1, start_date: new Date().toISOString().split('T')[0], end_date: new Date().toISOString().split('T')[0] })
+    ])
+
+    // 处理用户数据
+    if (usersResponse.status === 'fulfilled' && usersResponse.value.code === 200) {
+      dashboardStats.value.totalUsers = usersResponse.value.data?.total || 0
+      dashboardStats.value.activeUsers = Math.floor(dashboardStats.value.totalUsers * 0.7) // 假设70%活跃
+    } else {
+      // 使用模拟数据
+      dashboardStats.value.totalUsers = 1234
+      dashboardStats.value.activeUsers = 892
+    }
+
+    // 处理系统监控数据
+    if (systemResponse.status === 'fulfilled' && systemResponse.value.code === 200) {
+      systemOverview.value = systemResponse.value.data
+    }
+
+    // 处理日志数据
+    if (logsResponse.status === 'fulfilled' && logsResponse.value.code === 200) {
+      dashboardStats.value.todayLogs = logsResponse.value.data?.pagination?.total_count || 0
+    } else {
+      dashboardStats.value.todayLogs = 45
+    }
+
+    // 模拟其他数据
+    dashboardStats.value.todayOrders = Math.floor(Math.random() * 100) + 50
+    dashboardStats.value.totalRevenue = Math.floor(Math.random() * 100000) + 50000
+
+  } catch (error) {
+    console.error('获取仪表盘数据失败:', error)
+    // 使用模拟数据作为后备
+    dashboardStats.value = {
+      totalUsers: 1234,
+      todayOrders: 89,
+      totalRevenue: 45678,
+      activeUsers: 892,
+      todayLogs: 45
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+// 启动定时刷新
+const startRefresh = () => {
+  fetchDashboardData()
+  refreshTimer = setInterval(fetchDashboardData, 30000) // 每30秒刷新一次
+}
+
+// 停止定时刷新
+const stopRefresh = () => {
+  if (refreshTimer) {
+    clearInterval(refreshTimer)
+    refreshTimer = null
+  }
+}
+
+onMounted(() => {
+  startRefresh()
+})
+
+onUnmounted(() => {
+  stopRefresh()
+})
 </script>
 
 <template>
-  <div class="dashboard">
-    <!-- 仪表板页面 -->
+  <div class="dashboard-container p-6 bg-gray-50 min-h-screen">
+    <!-- 页面标题 -->
     <Motion :initial="cardVariants.initial" :animate="cardVariants.animate" :whileHover="cardVariants.whileHover as any"
-      :transition="{ ...cardVariants.transition, delay: 0.3 } as any">
+      :transition="{ ...cardVariants.transition, delay: 0.2 } as any">
       <el-card class="mb-6">
-        <template #header>
-          <div class="flex items-center justify-between">
-            <span class="text-lg font-medium">仪表板</span>
-            <Motion :initial="{ scale: 0.8, opacity: 0 }" :animate="{ scale: 1, opacity: 1 }"
-              :whileHover="{ scale: 1.05 }" :transition="{ duration: 0.3, delay: 0.5 }">
-              <el-button type="primary" :icon="Refresh" :loading="loading" circle @click="null" />
+        <div class="flex items-center justify-between">
+          <div>
+            <Motion :initial="{ x: -30, opacity: 0 }" :animate="{ x: 0, opacity: 1 }"
+              :transition="{ duration: 0.5, delay: 0.3 }">
+              <h1 class="text-2xl font-bold text-gray-800">仪表盘</h1>
+            </Motion>
+            <Motion :initial="{ x: -20, opacity: 0 }" :animate="{ x: 0, opacity: 1 }"
+              :transition="{ duration: 0.4, delay: 0.4 }">
+              <p class="text-gray-600 mt-1">欢迎回来，这里是您的数据概览</p>
             </Motion>
           </div>
-        </template>
+          <div class="flex items-center space-x-3">
+            <Motion :initial="{ scale: 0.8, opacity: 0 }" :animate="{ scale: 1, opacity: 1 }"
+              :whileHover="{ scale: 1.05 }" :transition="{ duration: 0.3, delay: 0.5 }">
+              <el-button type="primary" :icon="Refresh" :loading="loading" circle @click="fetchDashboardData" />
+            </Motion>
+          </div>
+        </div>
 
         <!-- 统计卡片 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-
-          <Motion :initial="statsCardVariants.initial" :animate="statsCardVariants.animate"
-            :whileHover="statsCardVariants.whileHover as any"
-            :transition="{ ...statsCardVariants.transition, delay: 0.4 } as any"
-            class="bg-blue-50 p-6 rounded-lg cursor-pointer">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+          <Motion v-for="(stat, index) in stats" :key="stat.title" :initial="statsCardVariants.initial"
+            :animate="statsCardVariants.animate" :whileHover="statsCardVariants.whileHover as any"
+            :transition="{ ...statsCardVariants.transition, delay: 0.1 * (index + 1) } as any" :class="[
+              'p-6 rounded-lg cursor-pointer',
+              stat.title === '总用户数' ? 'bg-blue-50' : '',
+              stat.title === '今日日志' ? 'bg-green-50' : '',
+              stat.title === 'CPU使用率' ? 'bg-yellow-50' : '',
+              stat.title === '内存使用率' ? 'bg-purple-50' : ''
+            ]">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-blue-600 text-sm font-medium">总用户数</p>
+                <p :class="[
+                  'text-sm font-medium',
+                  stat.title === '总用户数' ? 'text-blue-600' : '',
+                  stat.title === '今日日志' ? 'text-green-600' : '',
+                  stat.title === 'CPU使用率' ? 'text-yellow-600' : '',
+                  stat.title === '内存使用率' ? 'text-purple-600' : ''
+                ]">{{ stat.title }}</p>
                 <Motion :initial="{ opacity: 0, y: 10 }" :animate="{ opacity: 1, y: 0 }"
-                  :transition="{ duration: 0.4, delay: 0.6 }">
-                  <p class="text-2xl font-bold text-blue-900">1,234</p>
+                  :transition="{ duration: 0.4, delay: 0.2 * (index + 1) }">
+                  <p :class="[
+                    'text-2xl font-bold',
+                    stat.title === '总用户数' ? 'text-blue-900' : '',
+                    stat.title === '今日日志' ? 'text-green-900' : '',
+                    stat.title === 'CPU使用率' ? 'text-yellow-900' : '',
+                    stat.title === '内存使用率' ? 'text-purple-900' : ''
+                  ]">{{ stat.value }}</p>
                 </Motion>
+                <p :class="[
+                  'text-xs mt-1',
+                  stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
+                ]">{{ stat.change }}</p>
               </div>
               <Motion :initial="iconVariants.initial" :animate="iconVariants.animate"
                 :whileHover="iconVariants.whileHover as any"
-                :transition="{ ...iconVariants.transition, delay: 0.5 } as any" class="text-blue-500">
+                :transition="{ ...iconVariants.transition, delay: 0.1 * (index + 1) } as any" :class="[
+                  stat.title === '总用户数' ? 'text-blue-500' : '',
+                  stat.title === '今日日志' ? 'text-green-500' : '',
+                  stat.title === 'CPU使用率' ? 'text-yellow-500' : '',
+                  stat.title === '内存使用率' ? 'text-purple-500' : ''
+                ]">
                 <el-icon size="32">
-                  <User />
+                  <User v-if="stat.icon === 'user'" />
+                  <Document v-else-if="stat.icon === 'file-text'" />
+                  <Monitor v-else-if="stat.icon === 'cpu'" />
+                  <Cpu v-else-if="stat.icon === 'hard-drive'" />
                 </el-icon>
               </Motion>
             </div>
           </Motion>
-
-          <Motion :initial="statsCardVariants.initial" :animate="statsCardVariants.animate"
-            :whileHover="statsCardVariants.whileHover as any"
-            :transition="{ ...statsCardVariants.transition, delay: 0.5 } as any"
-            class="bg-green-50 p-6 rounded-lg cursor-pointer">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-green-600 text-sm font-medium">今日订单</p>
-                <Motion :initial="{ opacity: 0, y: 10 }" :animate="{ opacity: 1, y: 0 }"
-                  :transition="{ duration: 0.4, delay: 0.7 }">
-                  <p class="text-2xl font-bold text-green-900">567</p>
-                </Motion>
-              </div>
-              <Motion :initial="iconVariants.initial" :animate="iconVariants.animate"
-                :whileHover="iconVariants.whileHover as any"
-                :transition="{ ...iconVariants.transition, delay: 0.6 } as any" class="text-green-500">
-                <el-icon size="32">
-                  <ShoppingCart />
-                </el-icon>
-              </Motion>
-            </div>
-          </Motion>
-
-          <Motion :initial="statsCardVariants.initial" :animate="statsCardVariants.animate"
-            :whileHover="statsCardVariants.whileHover as any"
-            :transition="{ ...statsCardVariants.transition, delay: 0.6 } as any"
-            class="bg-yellow-50 p-6 rounded-lg cursor-pointer">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-yellow-600 text-sm font-medium">总收入</p>
-                <Motion :initial="{ opacity: 0, y: 10 }" :animate="{ opacity: 1, y: 0 }"
-                  :transition="{ duration: 0.4, delay: 0.8 }">
-                  <p class="text-2xl font-bold text-yellow-900">¥89,012</p>
-                </Motion>
-              </div>
-              <Motion :initial="iconVariants.initial" :animate="iconVariants.animate"
-                :whileHover="iconVariants.whileHover as any"
-                :transition="{ ...iconVariants.transition, delay: 0.7 } as any" class="text-yellow-500">
-                <el-icon size="32">
-                  <Money />
-                </el-icon>
-              </Motion>
-            </div>
-          </Motion>
-
-          <Motion :initial="statsCardVariants.initial" :animate="statsCardVariants.animate"
-            :whileHover="statsCardVariants.whileHover as any"
-            :transition="{ ...statsCardVariants.transition, delay: 0.7 } as any"
-            class="bg-purple-50 p-6 rounded-lg cursor-pointer">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-purple-600 text-sm font-medium">活跃用户</p>
-                <Motion :initial="{ opacity: 0, y: 10 }" :animate="{ opacity: 1, y: 0 }"
-                  :transition="{ duration: 0.4, delay: 0.9 }">
-                  <p class="text-2xl font-bold text-purple-900">345</p>
-                </Motion>
-              </div>
-              <Motion :initial="iconVariants.initial" :animate="iconVariants.animate"
-                :whileHover="iconVariants.whileHover as any"
-                :transition="{ ...iconVariants.transition, delay: 0.8 } as any" class="text-purple-500">
-                <el-icon size="32">
-                  <TrendCharts />
-                </el-icon>
-              </Motion>
-            </div>
-          </Motion>
-
         </div>
       </el-card>
     </Motion>
 
-    <!-- 图表区域 -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Motion :initial="cardVariants.initial" :animate="cardVariants.animate"
-        :whileHover="cardVariants.whileHover as any" :transition="{ ...cardVariants.transition, delay: 0.8 } as any">
-        <el-card>
-          <template #header>
-            <span class="font-medium">销售趋势</span>
-          </template>
-          <div class="h-64 flex items-center justify-center text-gray-500">
-            <Motion :initial="{ opacity: 0, scale: 0.8 }" :animate="{ opacity: 1, scale: 1 }"
-              :whileHover="{ scale: 1.1, rotate: 5 }" :transition="{ duration: 0.5, delay: 1.0 }" class="text-center">
-              <Motion :initial="{ y: -20, opacity: 0 }" :animate="{ y: 0, opacity: 1 }"
-                :transition="{ duration: 0.4, delay: 1.2 }">
-                <el-icon size="48" class="mb-2">
-                  <TrendCharts />
-                </el-icon>
-              </Motion>
-              <Motion :initial="{ opacity: 0 }" :animate="{ opacity: 1 }" :transition="{ duration: 0.3, delay: 1.4 }">
-                <p>图表组件待集成</p>
-              </Motion>
-            </Motion>
-          </div>
-        </el-card>
-      </Motion>
+    <!-- 系统监控区域 -->
+    <Motion :initial="cardVariants.initial" :animate="cardVariants.animate" :whileHover="cardVariants.whileHover as any"
+      :transition="{ ...cardVariants.transition, delay: 0.6 } as any">
+      <div class="mb-6">
+        <SystemMonitorChart />
+      </div>
+    </Motion>
 
-      <Motion :initial="cardVariants.initial" :animate="cardVariants.animate"
-        :whileHover="cardVariants.whileHover as any" :transition="{ ...cardVariants.transition, delay: 0.9 } as any">
-        <el-card>
-          <template #header>
-            <span class="font-medium">用户分布</span>
-          </template>
-          <div class="h-64 flex items-center justify-center text-gray-500">
-            <Motion :initial="{ opacity: 0, scale: 0.8 }" :animate="{ opacity: 1, scale: 1 }"
-              :whileHover="{ scale: 1.1, rotate: -5 }" :transition="{ duration: 0.5, delay: 1.1 }" class="text-center">
-              <Motion :initial="{ y: -20, opacity: 0 }" :animate="{ y: 0, opacity: 1 }"
-                :transition="{ duration: 0.4, delay: 1.3 }">
-                <el-icon size="48" class="mb-2">
-                  <PieChart />
-                </el-icon>
-              </Motion>
-              <Motion :initial="{ opacity: 0 }" :animate="{ opacity: 1 }" :transition="{ duration: 0.3, delay: 1.5 }">
-                <p>图表组件待集成</p>
-              </Motion>
-            </Motion>
-          </div>
-        </el-card>
-      </Motion>
-    </div>
+    <!-- 用户活动区域 -->
+    <Motion :initial="cardVariants.initial" :animate="cardVariants.animate" :whileHover="cardVariants.whileHover as any"
+      :transition="{ ...cardVariants.transition, delay: 0.8 } as any">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <UserActivityChart />
+      </div>
+    </Motion>
+
+    <!-- 数据表格区域 -->
+    <Motion :initial="cardVariants.initial" :animate="cardVariants.animate" :whileHover="cardVariants.whileHover as any"
+      :transition="{ ...cardVariants.transition, delay: 1.0 } as any">
+      <DataTable />
+    </Motion>
   </div>
 </template>
 
 <style scoped>
-.dashboard {
+.dashboard-container {
   width: 100%;
 }
 

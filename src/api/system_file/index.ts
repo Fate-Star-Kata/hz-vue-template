@@ -10,7 +10,7 @@ interface ApiResponse<T> {
 
 // CPU监控信息类型
 interface CpuInfo {
-  cpu_percent: number[]
+  cpu_percent: number
   cpu_count: number
   cpu_freq: {
     current: number

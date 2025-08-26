@@ -8,6 +8,13 @@ export interface User {
   is_superuser: boolean
   date_joined?: string
   last_login?: string
+  role?: string
+  status?: string
+  created_at?: string
+  avatar?: string
+  phone?: string
+  address?: string
+  bio?: string
 }
 
 // 用户查询参数
@@ -19,6 +26,7 @@ export interface UserQueryParams {
 
 // 用户列表响应
 export interface UserListResponse {
+  code: number
   data: {
     users: User[]
     total: number
