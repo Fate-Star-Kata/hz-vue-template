@@ -1,318 +1,38 @@
 <template>
   <div class="content-management-container h-full flex flex-col">
-    <!-- 统计卡片 -->
-    <el-card shadow="never" class="stats-card">
-      <template #header>
-        <div class="stats-header">
-          <span class="stats-title">数据统计</span>
-          <el-button type="primary" :icon="Plus" @click="showCreateDialog = true">
-            发布通知
-          </el-button>
-        </div>
-      </template>
-      <!-- <el-row :gutter="16" class="stats-row">
-        <el-col :xs="24" :sm="12" :md="6">
-          <el-card shadow="hover" class="stat-card">
-            <el-statistic title="总通知数" :value="stats.total">
-              <template #prefix>
-                <el-icon style="color: var(--el-color-primary)">
-                  <Bell />
-                </el-icon>
-              </template>
-            </el-statistic>
-          </el-card>
-        </el-col>
+    <!-- 统计卡片组件 -->
+    <NoticeStatsCard :stats="stats" :loading="loading" @create="handleCreate" />
 
-        <el-col :xs="24" :sm="12" :md="6">
-          <el-card shadow="hover" class="stat-card">
-            <el-statistic title="今日发布" :value="stats.today">
-              <template #prefix>
-                <el-icon style="color: var(--el-color-success)">
-                  <Calendar />
-                </el-icon>
-              </template>
-            </el-statistic>
-          </el-card>
-        </el-col>
+    <!-- 搜索组件 -->
+    <NoticeSearchForm :query="searchParams.query" :is-public="searchParams.is_public" :loading="loading"
+      @search="handleSearchSubmit" @reset="handleSearchReset" />
 
-        <el-col :xs="24" :sm="12" :md="6">
-          <el-card shadow="hover" class="stat-card">
-            <el-statistic title="本月发布" :value="stats.this_month">
-              <template #prefix>
-                <el-icon style="color: var(--el-color-warning)">
-                  <TrendCharts />
-                </el-icon>
-              </template>
-            </el-statistic>
-          </el-card>
-        </el-col>
-      </el-row> -->
-    </el-card>
+    <!-- 通知表格组件 -->
+    <NoticeTable :data="notificationList" :loading="loading" @refresh="refreshData" @edit="handleEdit"
+      @resend="handleResend" @resend-all="handleResendAll" @delete="handleDelete" />
 
-    <!-- 筛选和搜索 -->
-    <el-card shadow="never" class="search-card">
-      <el-form :inline="true" class="search-form">
-        <el-form-item label="搜索">
-          <el-input v-model="searchParams.query" placeholder="搜索通知标题或内容..." :prefix-icon="Search" clearable
-            style="width: 300px" @input="handleSearch" />
-        </el-form-item>
+    <!-- 分页组件 -->
+    <NoticePagination :current-page="searchParams.page || 1" :page-size="searchParams.page_size || 10" :total="total"
+      :loading="loading" @size-change="handleSizeChange" @current-change="handleCurrentChange" />
 
-        <el-form-item label="可见性">
-          <el-select v-model="searchParams.is_public" placeholder="全部" clearable style="width: 120px"
-            @change="handleFilterChange">
-            <el-option label="公开" :value="1" />
-            <el-option label="私有" :value="0" />
-          </el-select>
-        </el-form-item>
+    <!-- 创建/编辑通知对话框组件 -->
+    <NoticeFormDialog v-model:visible="showCreateDialog" :editing-data="editingNotification || null"
+      :is-edit="!!editingNotification" :loading="submitting" :user-options="userOptions"
+      :user-search-loading="userSearchLoading" @submit="handleSubmit"
+      @cancel="() => { showCreateDialog = false; resetForm(); }" @search-users="searchUsers"
+      @load-all-users="loadAllUsers" />
 
-        <el-form-item>
-          <el-button type="primary" :icon="Search" @click="getNotificationList">
-            搜索
-          </el-button>
-          <el-button @click="resetSearch">
-            重置
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <!-- 重发通知对话框组件 -->
+    <NoticeResendDialog v-model:visible="showResendDialog" :notice-data="{ id: resendForm.notification_id }"
+      :loading="submitting" :user-options="userOptions" :user-search-loading="userSearchLoading"
+      @submit="handleResendSubmit" @cancel="() => { showResendDialog = false; }" @search-users="searchUsers"
+      @load-all-users="loadAllUsers" />
 
-    <!-- 通知列表 -->
-    <el-card shadow="never" class="list-card flex-1 min-h-0 flex flex-col">
-      <template #header>
-        <div class="list-header">
-          <span class="list-title">通知列表</span>
-          <el-space>
-            <el-button :icon="Refresh" @click="refreshData" :loading="loading" size="small">
-              刷新
-            </el-button>
-
-          </el-space>
-        </div>
-      </template>
-
-      <!-- 加载状态 -->
-      <div v-if="loading" v-loading="loading" class="loading-container">
-        <el-empty description="正在加载通知..." />
-      </div>
-
-      <!-- 空状态 -->
-      <div v-else-if="notificationList.length === 0" class="empty-container">
-        <el-empty description="暂无通知数据">
-          <template #image>
-            <el-icon size="60" color="var(--el-color-info)">
-              <DocumentRemove />
-            </el-icon>
-          </template>
-          <el-button type="primary" @click="showCreateDialog = true">
-            发布第一条通知
-          </el-button>
-        </el-empty>
-      </div>
-
-      <!-- 通知列表 -->
-      <div v-else class="table-container flex-1 min-h-0">
-        <el-table :data="notificationList" stripe border height="100%" :loading="loading" empty-text="暂无通知数据"
-          class="notification-table">
-          <el-table-column prop="title" label="通知标题" min-width="200" show-overflow-tooltip>
-            <template #default="{ row }">
-              <div class="title-cell">
-                <span class="title-text">{{ row.title }}</span>
-              </div>
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="content" label="通知内容" min-width="300" show-overflow-tooltip>
-            <template #default="{ row }">
-              <div class="content-cell">
-                <span class="content-text">{{ row.content }}</span>
-              </div>
-            </template>
-          </el-table-column>
-
-
-
-
-          <el-table-column label="创建时间" width="120" align="center">
-            <template #default="{ row }">
-              <div class="time-cell">
-                <el-icon class="time-icon">
-                  <Clock />
-                </el-icon>
-                <span class="time-text">{{ formatDate(row.created_at) }}</span>
-              </div>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="操作" width="180" align="center" fixed="right">
-            <template #default="{ row }">
-              <div class="action-cell">
-                <el-button-group size="small" class="action-button-group">
-                  <el-button type="warning" @click="handleEdit(row.id)" size="small">
-                    <el-icon>
-                      <Edit />
-                    </el-icon>
-                  </el-button>
-                  <el-button type="primary" @click="handleResend(row.id)" size="small" title="选择用户重发">
-                    <el-icon>
-                      <UserFilled />
-                    </el-icon>
-                  </el-button>
-                  <el-button type="success" @click="handleResendAll(row.id)" size="small" title="全部重发">
-                    <el-icon>
-                      <Bell />
-                    </el-icon>
-                  </el-button>
-                  <el-button type="danger" @click="handleDelete(row.id)" size="small">
-                    <el-icon>
-                      <Delete />
-                    </el-icon>
-                  </el-button>
-                </el-button-group>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-    </el-card>
-
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination v-model:current-page="searchParams.page" v-model:page-size="searchParams.page_size" :total="total"
-        :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
-        @current-change="handleCurrentChange" background />
-    </div>
-
-    <!-- 创建/编辑通知对话框 -->
-    <el-dialog v-model="showCreateDialog" :title="editingNotification ? '编辑通知' : '发布通知'" width="650px"
-      :close-on-click-modal="false" :close-on-press-escape="false" destroy-on-close class="notification-dialog"
-      align-center>
-      <template #header="{ titleId, titleClass }">
-        <div class="dialog-header">
-          <div class="dialog-icon">
-            <el-icon size="24">
-              <Edit v-if="editingNotification" />
-              <Plus v-else />
-            </el-icon>
-          </div>
-          <h3 :id="titleId" :class="titleClass" class="dialog-title">
-            {{ editingNotification ? '编辑通知' : '发布通知' }}
-          </h3>
-        </div>
-      </template>
-
-      <div class="dialog-content">
-        <el-form ref="notificationFormRef" :model="notificationForm" :rules="formRules" label-width="100px"
-          label-position="left" size="default" class="notification-form">
-          <div class="form-section">
-            <h4 class="section-title">基本信息</h4>
-            <el-form-item label="通知标题" prop="title" class="form-item">
-              <el-input v-model="notificationForm.title" placeholder="请输入通知标题" maxlength="100" show-word-limit clearable
-                class="form-input" />
-            </el-form-item>
-
-            <el-form-item label="通知内容" prop="content" class="form-item">
-              <el-input v-model="notificationForm.content" type="textarea" :rows="6" placeholder="请输入通知内容"
-                maxlength="1000" show-word-limit resize="vertical" class="form-textarea" />
-            </el-form-item>
-          </div>
-
-          <div class="form-section">
-            <h4 class="section-title">通知设置</h4>
-            <div class="switch-group">
-              <el-form-item label="是否启用" class="switch-item">
-                <el-switch v-model="notificationForm.is_active" active-text="启用" inactive-text="未启用"
-                  active-color="var(--el-color-success)" inactive-color="var(--el-color-info)" size="default" />
-              </el-form-item>
-
-              <el-form-item label="通知所有人" class="switch-item">
-                <el-switch v-model="notificationForm.notify_all" active-text="是" inactive-text="否"
-                  active-color="var(--el-color-primary)" inactive-color="var(--el-color-info)" size="default"
-                  @change="handleNotifyAllChange" />
-              </el-form-item>
-
-
-            </div>
-            <br></br>
-            <!-- 指定用户选择 -->
-            <el-form-item v-if="!notificationForm.notify_all" label="指定用户" prop="recipient_user_ids" class="form-item">
-              <el-select v-model="notificationForm.recipient_user_ids" multiple filterable remote reserve-keyword
-                placeholder="请选择要通知的用户" :remote-method="searchUsers" :loading="userSearchLoading" class="form-select"
-                @focus="loadAllUsers" collapse-tags collapse-tags-tooltip>
-                <el-option v-for="user in userOptions" :key="user.id" :label="user.username" :value="user.id" />
-              </el-select>
-            </el-form-item>
-          </div>
-        </el-form>
-      </div>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button size="large" @click="showCreateDialog = false" class="cancel-btn">
-            取消
-          </el-button>
-          <el-button type="primary" size="large" :loading="submitting" @click="handleSubmit" class="submit-btn">
-            <el-icon v-if="!submitting" class="btn-icon">
-              <Edit v-if="editingNotification" />
-              <Plus v-else />
-            </el-icon>
-            {{ editingNotification ? '更新通知' : '发布通知' }}
-          </el-button>
-        </div>
-      </template>
-    </el-dialog>
-
-    <!-- 重发通知（所有/指定）对话框 -->
-    <el-dialog v-model="showResendDialog" title="重复发送通知" width="520px" :close-on-click-modal="false" destroy-on-close align-center>
-      <div class="send-to-user-content">
-        <el-form label-width="120px">
-          <el-form-item label="发送范围">
-            <el-switch v-model="resendForm.notify_all" active-text="所有用户" inactive-text="指定用户" />
-          </el-form-item>
-          <el-form-item v-if="!resendForm.notify_all" label="选择用户">
-            <el-select v-model="resendForm.recipient_user_ids" multiple filterable remote reserve-keyword
-              placeholder="请选择要通知的用户" :remote-method="searchUsers" :loading="userSearchLoading" style="width: 100%"
-              @focus="loadAllUsers" collapse-tags collapse-tags-tooltip>
-              <el-option v-for="user in userOptions" :key="user.id" :label="user.username" :value="user.id" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="邮件通知">
-            <el-switch v-model="resendForm.email_notification" active-text="发送邮件" inactive-text="不发送" />
-          </el-form-item>
-        </el-form>
-      </div>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="showResendDialog = false">取消</el-button>
-          <el-button type="primary" @click="handleResendSubmit">重发</el-button>
-        </div>
-      </template>
-    </el-dialog>
-
-    <!-- 重发给特定用户对话框（快捷） -->
-    <el-dialog v-model="showSendToUserDialog" title="重发给指定用户" width="500px" :close-on-click-modal="false"
-      destroy-on-close align-center>
-      <div class="send-to-user-content">
-        <el-form label-width="100px">
-          <el-form-item label="选择用户">
-            <el-select v-model="sendToUserForm.recipient_user_ids" multiple filterable remote reserve-keyword
-              placeholder="请选择要通知的用户" :remote-method="searchUsers" :loading="userSearchLoading" style="width: 100%"
-              @focus="loadAllUsers" collapse-tags collapse-tags-tooltip>
-              <el-option v-for="user in userOptions" :key="user.id" :label="user.username" :value="user.id" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="邮件通知">
-            <el-switch v-model="sendToUserForm.email_notification" active-text="发送邮件" inactive-text="不发送" />
-          </el-form-item>
-        </el-form>
-      </div>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="showSendToUserDialog = false">取消</el-button>
-          <el-button type="primary" @click="handleSendToUsersSubmit">重发</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <!-- 重发给特定用户对话框组件 -->
+    <NoticeResendDialog v-model:visible="showSendToUserDialog" :notice-data="{ id: sendToUserForm.notification_id }"
+      :loading="submitting" :specific-users-only="true" :user-options="userOptions"
+      :user-search-loading="userSearchLoading" @submit="handleSendToUsersSubmit"
+      @cancel="() => { showSendToUserDialog = false; }" @search-users="searchUsers" @load-all-users="loadAllUsers" />
 
   </div>
 </template>
@@ -344,12 +64,22 @@ import type {
   NotificationStats
 } from '@/types/factory'
 
+// 导入组件
+import NoticeStatsCard from '@/components/pages/admin/notice/NoticeStatsCard.vue'
+import NoticeSearchForm from '@/components/pages/admin/notice/NoticeSearchForm.vue'
+import NoticeTable from '@/components/pages/admin/notice/NoticeTable.vue'
+import NoticePagination from '@/components/pages/admin/notice/NoticePagination.vue'
+import NoticeFormDialog from '@/components/pages/admin/notice/NoticeFormDialog.vue'
+import NoticeResendDialog from '@/components/pages/admin/notice/NoticeResendDialog.vue'
+
 // 响应式数据
 const loading = ref(false)
 const submitting = ref(false)
 const markingAllAsRead = ref(false)
 const showCreateDialog = ref(false)
 const editingNotification = ref<NotificationItemType | null>(null)
+const editingNotice = ref<NotificationItemType | null>(null)
+const resendingNotice = ref<NotificationItemType | null>(null)
 const notificationFormRef = ref<FormInstance>()
 
 // 搜索参数
@@ -449,15 +179,65 @@ const getNotificationList = async () => {
   }
 }
 
-const getStats = async () => {
-  try {
-    const response = await notificationApi.getNotificationStats()
-    if (response.code === 200) {
-      stats.value = response.data
-    }
-  } catch (error) {
-    console.error('获取统计数据失败:', error)
+// 统计数据直接基于当前通知列表计算
+const getStats = () => {
+  setDefaultStats()
+}
+
+// 设置默认统计数据
+const setDefaultStats = () => {
+  // 基于当前通知列表计算统计数据
+  const total = notificationList.value.length
+  const today = new Date()
+  const todayStr = today.toISOString().split('T')[0]
+  
+  // 计算本周开始日期
+  const weekStart = new Date(today)
+  weekStart.setDate(today.getDate() - today.getDay())
+  const weekStartStr = weekStart.toISOString().split('T')[0]
+  
+  // 计算本月开始日期
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1)
+  const monthStartStr = monthStart.toISOString().split('T')[0]
+  
+  // 统计今日、本周、本月的通知数量
+  let todayCount = 0
+  let weekCount = 0
+  let monthCount = 0
+  
+  notificationList.value.forEach(notification => {
+    const createDate = notification.created_at?.split(' ')[0] || ''
+    if (createDate === todayStr) todayCount++
+    if (createDate >= weekStartStr) weekCount++
+    if (createDate >= monthStartStr) monthCount++
+  })
+  
+  stats.value = {
+    total,
+    today: todayCount,
+    this_week: weekCount,
+    this_month: monthCount
   }
+}
+
+const handleCreate = () => {
+  resetForm()
+  showCreateDialog.value = true
+}
+
+const handleSearchSubmit = async (params: { query: string; is_public: 0 | 1 | undefined }) => {
+  searchParams.query = params.query
+  searchParams.is_public = params.is_public
+  searchParams.page = 1
+  await getNotificationList()
+  getStats()
+}
+
+const handleSearchReset = () => {
+  searchParams.query = ''
+  searchParams.is_public = undefined
+  searchParams.page = 1
+  getNotificationList()
 }
 
 const handleSearch = () => {
@@ -467,7 +247,7 @@ const handleSearch = () => {
   searchTimer = setTimeout(() => {
     searchParams.page = 1
     getNotificationList()
-  }, 500)
+  }, 300)
 }
 
 const handleFilterChange = () => {
@@ -494,13 +274,26 @@ const refreshData = () => {
 const resetForm = () => {
   notificationForm.title = ''
   notificationForm.content = ''
+  notificationForm.is_public = true
   notificationForm.is_active = true
   notificationForm.notify_all = false
   notificationForm.email_notification = false
   notificationForm.recipient_user_ids = []
   editingNotification.value = null
+  editingNotice.value = null
   notificationFormRef.value?.resetFields()
   userOptions.value = []
+}
+
+// 表单取消处理
+const handleFormCancel = () => {
+  showCreateDialog.value = false
+  resetForm()
+}
+
+// 重发对话框取消处理
+const handleResendCancel = () => {
+  showResendDialog.value = false
 }
 
 // 处理通知所有人开关变化
@@ -515,7 +308,6 @@ const handleNotifyAllChange = (value: boolean) => {
   }, 100)
 }
 
-// 搜索用户
 // 加载所有用户（点击选择器时触发）
 const loadAllUsers = async () => {
   // 如果已经有用户选项，不重复加载
@@ -544,6 +336,7 @@ const loadAllUsers = async () => {
   }
 }
 
+// 搜索用户
 const searchUsers = async (query: string) => {
   if (!query) {
     // 如果没有搜索词，加载所有用户
@@ -578,13 +371,31 @@ const searchUsers = async (query: string) => {
   }
 }
 
-const resetSearch = () => {
-  searchParams.page = 1
-  searchParams.page_size = 10
-  searchParams.query = ''
-  searchParams.is_active = true
-  searchParams.is_public = undefined
-  getNotificationList()
+// 处理表单提交（来自组件）
+const submitForm = async (data: CreateNotificationReq) => {
+  submitting.value = true
+  try {
+    const response = editingNotification.value
+      ? await notificationApi.updateNotification({
+        id: editingNotification.value.id,
+        ...data
+      })
+      : await notificationApi.createNotification(data)
+
+    if (response.code === 200) {
+      ElMessage.success(response.msg || `${editingNotification.value ? '更新' : '发布'}成功`)
+      showCreateDialog.value = false
+      resetForm()
+      refreshData()
+    } else {
+      ElMessage.error(response.msg || `${editingNotification.value ? '更新' : '发布'}失败`)
+    }
+  } catch (error) {
+    console.error('提交失败:', error)
+    ElMessage.error('提交失败，请重试')
+  } finally {
+    submitting.value = false
+  }
 }
 
 const handleSubmit = async () => {
@@ -637,6 +448,7 @@ const handleEdit = (id: string | number) => {
   const notification = notificationList.value.find(item => item.id === id)
   if (notification) {
     editingNotification.value = notification
+    editingNotice.value = notification
     notificationForm.title = notification.title
     notificationForm.content = notification.content
     notificationForm.is_active = notification.is_active ?? true
@@ -649,6 +461,11 @@ const handleEdit = (id: string | number) => {
 
 // 重发（所有/指定）
 const handleResend = async (id: string | number) => {
+  const notification = notificationList.value.find(item => item.id === id)
+  if (notification) {
+    resendingNotice.value = notification
+  }
+
   resendForm.notification_id = Number(id)
   // 默认改为选择用户重发
   resendForm.notify_all = false
@@ -700,6 +517,32 @@ const handleResendAll = async (id: string | number) => {
       console.error('全部重发失败:', error)
       ElMessage.error('全部重发失败，请重试')
     }
+  }
+}
+
+// 处理重发提交（来自组件）
+const submitResend = async (data: any) => {
+  submitting.value = true
+  try {
+    const response = await notificationApi.resendNotification({
+      notification_id: resendingNotice.value?.id || data.notification_id,
+      ...data
+    })
+
+    if (response.code === 200) {
+      const count = response.data?.recipient_count
+      ElMessage.success(response.msg || `重发成功${typeof count === 'number' ? `，共 ${count} 位用户` : ''}`)
+      showResendDialog.value = false
+      resendingNotice.value = null
+      refreshData()
+    } else {
+      ElMessage.error(response.msg || '重发失败')
+    }
+  } catch (error) {
+    console.error('重发失败:', error)
+    ElMessage.error('重发失败，请重试')
+  } finally {
+    submitting.value = false
   }
 }
 
@@ -818,6 +661,7 @@ const handleDelete = async (id: string | number) => {
     if (response.code === 200) {
       ElMessage.success(response.msg || '删除成功')
       handleDeleteSuccess(id)
+      getStats()
     } else {
       ElMessage.error(response.msg || '删除失败')
     }
@@ -863,8 +707,9 @@ const formatDate = (dateString: string) => {
 }
 
 // 生命周期
-onMounted(() => {
-  getNotificationList()
+onMounted(async () => {
+  // 先获取通知列表，再获取统计数据
+  await getNotificationList()
   getStats()
 })
 </script>
