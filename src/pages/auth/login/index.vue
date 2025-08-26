@@ -6,12 +6,13 @@ import { ElMessage } from 'element-plus'
 import { onMounted, ref } from 'vue'
 import router from '@/router'
 import { useUserStore } from '@/stores/auth/user'
-import throttle from 'lodash/throttle';
+// import throttle from 'lodash/throttle'; // 移除节流机制
 import serverConfig from '../../../configs/index';
 
 const store = useUserStore();
 const captchaImage = ref('')
 const loading = ref(false)
+const captchaLoading = ref(false) // 验证码加载状态
 const loginFormRef = ref()
 
 const loginForm = ref<LoginReq>({
@@ -37,12 +38,13 @@ const rules: LoginFormRules = {
   ],
 }
 
-const throttledFunction = throttle(() => {
-  refreshCaptcha()
-}, 10000);
+// 移除节流机制，改为使用loading状态控制
 
 // 刷新验证码
 async function refreshCaptcha(): Promise<void> {
+  if (captchaLoading.value) return // 如果正在加载中，直接返回
+  
+  captchaLoading.value = true // 设置加载状态
   try {
     // 这里应该调用后端API获取验证码图片
     const response: CaptchaResponse = await getCaptCha()
@@ -68,6 +70,9 @@ async function refreshCaptcha(): Promise<void> {
         </text>
       </svg>
     `)}`
+  }
+  finally {
+    captchaLoading.value = false // 无论成功失败都要重置加载状态
   }
 }
 
@@ -209,7 +214,9 @@ onMounted(() => {
                   clearable class="captcha-input" />
                 <div class="captcha-image-wrapper">
                   <img v-if="captchaImage" :src="captchaImage" alt="验证码" class="captcha-image"
-                    @click="throttledFunction" title="点击刷新验证码" />
+                    :class="{ 'captcha-loading': captchaLoading }"
+                    @click="refreshCaptcha" 
+                    :title="captchaLoading ? '正在刷新...' : '点击刷新验证码'" />
                   <div v-else class="captcha-placeholder" @click="refreshCaptcha">
                     <el-icon>
                       <Picture />
@@ -541,6 +548,17 @@ onMounted(() => {
 .captcha-image:hover {
   border-color: #667eea;
   transform: scale(1.05);
+}
+
+.captcha-image.captcha-loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.captcha-image.captcha-loading:hover {
+  transform: none;
+  border-color: #e5e7eb;
 }
 
 .captcha-placeholder {
