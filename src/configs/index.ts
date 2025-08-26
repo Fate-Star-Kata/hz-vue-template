@@ -45,17 +45,17 @@ export const adminMenuItems: AdminHeader[] = [
   {
     id: "1",
     title: "仪表板",
-    icon: "Cpu",
+    icon: "Odometer",
     path: "/admin/dashboard",
   },
-  // {
-  //   id: "1",
-  //   title: "仪表板",
-  //   icon: "Odometer",
-  //   path: "/admin/dashboard",
-  // },
   {
     id: "2",
+    title: "系统监控",
+    icon: "Cpu",
+    path: "/admin/SystemMonitoring",
+  },
+  {
+    id: "3",
     title: "用户管理",
     icon: "User",
     path: "/admin/userManage",
@@ -64,32 +64,32 @@ export const adminMenuItems: AdminHeader[] = [
     // ]
   },
   {
-    id: "3",
+    id: "4",
     title: "通知管理",
     icon: "Bell",
     path: "/admin/notice",
   },
   {
-    id: "4",
+    id: "5",
     title: "知识管理",
     icon: "Document",
     path: "/admin/knowledge",
   },
   {
-    id: "5",
+    id: "6",
     title: "订单管理",
     icon: "ShoppingCart",
     path: "/admin/orders",
     hide: true,
     children: [
       {
-        id: "4-1",
+        id: "6-1",
         title: "订单列表",
         icon: "List",
         path: "/admin/orders/list",
       },
       {
-        id: "4-2",
+        id: "6-2",
         title: "退款管理",
         icon: "RefreshLeft",
         path: "/admin/orders/refunds",
@@ -97,33 +97,33 @@ export const adminMenuItems: AdminHeader[] = [
     ],
   },
   {
-    id: "6",
+    id: "7",
     title: "文件系统",
     icon: "FolderChecked",
     path: "/admin/files",
   },
   {
-    id: '6',
+    id: '8',
     title: 'AI 助手',
     icon: 'ChatDotRound',
     path: '/admin/ai',
     hide: true
   },
   {
-    id: '7',
+    id: '9',
     title: '财务管理',
     icon: 'Money',
     path: '/admin/finance',
     hide: true,
     children: [
       {
-        id: "8-1",
+        id: "9-1",
         title: "收支明细",
         icon: "Wallet",
         path: "/admin/finance/transactions",
       },
       {
-        id: "8-2",
+        id: "9-2",
         title: "财务报表",
         icon: "DataAnalysis",
         path: "/admin/finance/reports",
@@ -131,26 +131,26 @@ export const adminMenuItems: AdminHeader[] = [
     ],
   },
   {
-    id: "9",
+    id: "10",
     title: "系统设置",
     icon: "Setting",
     path: "/admin/settings",
     hide: true,
     children: [
       {
-        id: "9-1",
+        id: "10-1",
         title: "基础设置",
         icon: "Tools",
         path: "/admin/settings/basic",
       },
       {
-        id: "9-2",
+        id: "10-2",
         title: "权限管理",
         icon: "Key",
         path: "/admin/settings/permissions",
       },
       {
-        id: "9-3",
+        id: "10-3",
         title: "系统日志",
         icon: "DocumentCopy",
         path: "/admin/settings/logs",
@@ -158,13 +158,13 @@ export const adminMenuItems: AdminHeader[] = [
     ],
   },
   {
-    id: "10",
+    id: "11",
     title: "操作日志",
     icon: "DocumentCopy",
     path: "/admin/log",
   },
   {
-    id: "11",
+    id: "12",
     title: "系统配置",
     icon: "Tools",
     path: "/admin/systemConfig",

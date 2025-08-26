@@ -1,8 +1,8 @@
 <template>
   <Teleport to="body">
     <Transition name="fade">
-      <div v-if="isVisible"
-        class="fixed inset-0 z-[9998] flex items-center justify-center backdrop-blur-[3.5px] bg-black/18" @click.stop>
+      <div class="fixed inset-0 z-[9998] flex items-center justify-center backdrop-blur-[3.5px] bg-black/18"
+        @click.stop>
         <div class="flex flex-col items-center space-y-4">
           <!-- 现代点状加载动画 -->
           <div class="loading-spinner">
@@ -27,7 +27,6 @@ import { useRequestLoadingStore } from '@/stores/common/requestLoading'
 
 const requestLoadingStore = useRequestLoadingStore()
 
-const isVisible = computed(() => requestLoadingStore.isLoading)
 const loadingText = computed(() => requestLoadingStore.loadingText)
 </script>
 

@@ -1,276 +1,237 @@
+<script setup lang="ts">
+import { Motion } from 'motion-v'
+import { Refresh } from '@element-plus/icons-vue'
+import { ref } from 'vue'
+const loading = ref(false)
+
+// 动画配置
+const cardVariants = {
+  initial: { opacity: 0, y: 30, scale: 0.95 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  whileHover: {
+    scale: 1.02,
+    y: -5,
+    transition: { duration: 0.2, ease: ['easeOut'] }
+  },
+  transition: { duration: 0.4, ease: ['easeOut'] }
+}
+
+const statsCardVariants = {
+  initial: { opacity: 0, y: 40, scale: 0.9 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  whileHover: {
+    scale: 1.05,
+    y: -8,
+    transition: { duration: 0.3, ease: ['easeOut'] }
+  },
+  transition: { duration: 0.5, ease: ['easeOut'] }
+}
+
+const iconVariants = {
+  initial: { scale: 0, rotate: -180 },
+  animate: { scale: 1, rotate: 0 },
+  whileHover: {
+    scale: 1.2,
+    rotate: 10,
+    transition: { duration: 0.2, ease: ['easeOut'] }
+  },
+  transition: { duration: 0.6, delay: 0.3, ease: ['easeOut'] }
+}
+</script>
+
 <template>
-  <div class="system-monitor-container p-4 bg-gray-50 h-screen overflow-hidden">
-    <div class="mb-3">
-      <h1 class="text-2xl font-bold text-gray-800 mb-1">系统监控大屏</h1>
-      <p class="text-sm text-gray-600">实时监控系统资源使用情况</p>
-    </div>
+  <div class="dashboard">
+    <!-- 仪表板页面 -->
+    <Motion :initial="cardVariants.initial" :animate="cardVariants.animate" :whileHover="cardVariants.whileHover as any"
+      :transition="{ ...cardVariants.transition, delay: 0.3 } as any">
+      <el-card class="mb-6">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <span class="text-lg font-medium">仪表板</span>
+            <Motion :initial="{ scale: 0.8, opacity: 0 }" :animate="{ scale: 1, opacity: 1 }"
+              :whileHover="{ scale: 1.05 }" :transition="{ duration: 0.3, delay: 0.5 }">
+              <el-button type="primary" :icon="Refresh" :loading="loading" circle @click="null" />
+            </Motion>
+          </div>
+        </template>
 
-    <!-- 监控信息网格布局 -->
-    <div class="grid grid-cols-4 gap-3 h-[calc(100vh-120px)]">
-      <!-- CPU监控组件 -->
-      <CpuMonitor :cpu-info="cpuInfo" :loading="loading" />
+        <!-- 统计卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
 
-      <!-- 内存监控组件 -->
-      <MemoryMonitor :memory-info="memoryInfo" :loading="loading" />
+          <Motion :initial="statsCardVariants.initial" :animate="statsCardVariants.animate"
+            :whileHover="statsCardVariants.whileHover as any"
+            :transition="{ ...statsCardVariants.transition, delay: 0.4 } as any"
+            class="bg-blue-50 p-6 rounded-lg cursor-pointer">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-blue-600 text-sm font-medium">总用户数</p>
+                <Motion :initial="{ opacity: 0, y: 10 }" :animate="{ opacity: 1, y: 0 }"
+                  :transition="{ duration: 0.4, delay: 0.6 }">
+                  <p class="text-2xl font-bold text-blue-900">1,234</p>
+                </Motion>
+              </div>
+              <Motion :initial="iconVariants.initial" :animate="iconVariants.animate"
+                :whileHover="iconVariants.whileHover as any"
+                :transition="{ ...iconVariants.transition, delay: 0.5 } as any" class="text-blue-500">
+                <el-icon size="32">
+                  <User />
+                </el-icon>
+              </Motion>
+            </div>
+          </Motion>
 
-      <!-- 磁盘监控组件 -->
-      <DiskMonitor :disk-info="diskInfo" :loading="loading" />
+          <Motion :initial="statsCardVariants.initial" :animate="statsCardVariants.animate"
+            :whileHover="statsCardVariants.whileHover as any"
+            :transition="{ ...statsCardVariants.transition, delay: 0.5 } as any"
+            class="bg-green-50 p-6 rounded-lg cursor-pointer">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-green-600 text-sm font-medium">今日订单</p>
+                <Motion :initial="{ opacity: 0, y: 10 }" :animate="{ opacity: 1, y: 0 }"
+                  :transition="{ duration: 0.4, delay: 0.7 }">
+                  <p class="text-2xl font-bold text-green-900">567</p>
+                </Motion>
+              </div>
+              <Motion :initial="iconVariants.initial" :animate="iconVariants.animate"
+                :whileHover="iconVariants.whileHover as any"
+                :transition="{ ...iconVariants.transition, delay: 0.6 } as any" class="text-green-500">
+                <el-icon size="32">
+                  <ShoppingCart />
+                </el-icon>
+              </Motion>
+            </div>
+          </Motion>
 
-      <!-- 系统状态组件 -->
-      <SystemStatus :system-overview="systemOverview" :loading="loading" />
+          <Motion :initial="statsCardVariants.initial" :animate="statsCardVariants.animate"
+            :whileHover="statsCardVariants.whileHover as any"
+            :transition="{ ...statsCardVariants.transition, delay: 0.6 } as any"
+            class="bg-yellow-50 p-6 rounded-lg cursor-pointer">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-yellow-600 text-sm font-medium">总收入</p>
+                <Motion :initial="{ opacity: 0, y: 10 }" :animate="{ opacity: 1, y: 0 }"
+                  :transition="{ duration: 0.4, delay: 0.8 }">
+                  <p class="text-2xl font-bold text-yellow-900">¥89,012</p>
+                </Motion>
+              </div>
+              <Motion :initial="iconVariants.initial" :animate="iconVariants.animate"
+                :whileHover="iconVariants.whileHover as any"
+                :transition="{ ...iconVariants.transition, delay: 0.7 } as any" class="text-yellow-500">
+                <el-icon size="32">
+                  <Money />
+                </el-icon>
+              </Motion>
+            </div>
+          </Motion>
 
-      <!-- 进程监控组件 -->
-      <ProcessMonitor 
-        :process-info="processInfo" 
-        :process-sort-by="processSortBy"
-        :process-limit="processLimit"
-        :loading="loading"
-        @update-sort="updateProcessSort"
-        @update-limit="updateProcessLimit"
-        class="col-span-4" 
-      />
-    </div>
+          <Motion :initial="statsCardVariants.initial" :animate="statsCardVariants.animate"
+            :whileHover="statsCardVariants.whileHover as any"
+            :transition="{ ...statsCardVariants.transition, delay: 0.7 } as any"
+            class="bg-purple-50 p-6 rounded-lg cursor-pointer">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-purple-600 text-sm font-medium">活跃用户</p>
+                <Motion :initial="{ opacity: 0, y: 10 }" :animate="{ opacity: 1, y: 0 }"
+                  :transition="{ duration: 0.4, delay: 0.9 }">
+                  <p class="text-2xl font-bold text-purple-900">345</p>
+                </Motion>
+              </div>
+              <Motion :initial="iconVariants.initial" :animate="iconVariants.animate"
+                :whileHover="iconVariants.whileHover as any"
+                :transition="{ ...iconVariants.transition, delay: 0.8 } as any" class="text-purple-500">
+                <el-icon size="32">
+                  <TrendCharts />
+                </el-icon>
+              </Motion>
+            </div>
+          </Motion>
 
-    <!-- 底部状态栏 -->
-    <div
-      class="absolute bottom-2 left-4 right-4 flex justify-between items-center bg-white rounded-lg shadow-md px-3 py-1">
-      <div class="text-xs text-gray-600">
-        最后更新: {{ lastUpdateTime || 'N/A' }}
-      </div>
-      <div class="flex space-x-2 items-center">
-        <button @click="refreshAllData" :disabled="loading"
-          class="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-          <svg v-if="loading" class="animate-spin -ml-1 mr-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg"
-            fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-            </path>
-          </svg>
-          {{ loading ? '刷新中...' : '刷新' }}
-        </button>
-        <label class="flex items-center text-xs">
-          <input type="checkbox" v-model="autoRefresh" @change="toggleAutoRefresh" class="mr-1">
-          <span class="text-xs text-gray-600">自动刷新 ({{ refreshInterval / 1000 }}s)</span>
-        </label>
-      </div>
+        </div>
+      </el-card>
+    </Motion>
+
+    <!-- 图表区域 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Motion :initial="cardVariants.initial" :animate="cardVariants.animate"
+        :whileHover="cardVariants.whileHover as any" :transition="{ ...cardVariants.transition, delay: 0.8 } as any">
+        <el-card>
+          <template #header>
+            <span class="font-medium">销售趋势</span>
+          </template>
+          <div class="h-64 flex items-center justify-center text-gray-500">
+            <Motion :initial="{ opacity: 0, scale: 0.8 }" :animate="{ opacity: 1, scale: 1 }"
+              :whileHover="{ scale: 1.1, rotate: 5 }" :transition="{ duration: 0.5, delay: 1.0 }" class="text-center">
+              <Motion :initial="{ y: -20, opacity: 0 }" :animate="{ y: 0, opacity: 1 }"
+                :transition="{ duration: 0.4, delay: 1.2 }">
+                <el-icon size="48" class="mb-2">
+                  <TrendCharts />
+                </el-icon>
+              </Motion>
+              <Motion :initial="{ opacity: 0 }" :animate="{ opacity: 1 }" :transition="{ duration: 0.3, delay: 1.4 }">
+                <p>图表组件待集成</p>
+              </Motion>
+            </Motion>
+          </div>
+        </el-card>
+      </Motion>
+
+      <Motion :initial="cardVariants.initial" :animate="cardVariants.animate"
+        :whileHover="cardVariants.whileHover as any" :transition="{ ...cardVariants.transition, delay: 0.9 } as any">
+        <el-card>
+          <template #header>
+            <span class="font-medium">用户分布</span>
+          </template>
+          <div class="h-64 flex items-center justify-center text-gray-500">
+            <Motion :initial="{ opacity: 0, scale: 0.8 }" :animate="{ opacity: 1, scale: 1 }"
+              :whileHover="{ scale: 1.1, rotate: -5 }" :transition="{ duration: 0.5, delay: 1.1 }" class="text-center">
+              <Motion :initial="{ y: -20, opacity: 0 }" :animate="{ y: 0, opacity: 1 }"
+                :transition="{ duration: 0.4, delay: 1.3 }">
+                <el-icon size="48" class="mb-2">
+                  <PieChart />
+                </el-icon>
+              </Motion>
+              <Motion :initial="{ opacity: 0 }" :animate="{ opacity: 1 }" :transition="{ duration: 0.3, delay: 1.5 }">
+                <p>图表组件待集成</p>
+              </Motion>
+            </Motion>
+          </div>
+        </el-card>
+      </Motion>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { monitorApi } from '@/api/system_file'
-
-// 导入子组件
-import CpuMonitor from '@/components/pages/admin/dashboard/CpuMonitor.vue'
-import MemoryMonitor from '@/components/pages/admin/dashboard/MemoryMonitor.vue'
-import DiskMonitor from '@/components/pages/admin/dashboard/DiskMonitor.vue'
-import SystemStatus from '@/components/pages/admin/dashboard/SystemStatus.vue'
-import ProcessMonitor from '@/components/pages/admin/dashboard/ProcessMonitor.vue'
-
-// 响应式数据
-const loading = ref(false)
-const lastUpdateTime = ref('')
-const autoRefresh = ref(true)
-const refreshInterval = ref(30000) // 30秒刷新间隔
-let refreshTimer = null
-
-// 监控数据
-const systemOverview = ref({})
-const cpuInfo = ref({})
-const memoryInfo = ref({})
-const diskInfo = ref({ disk_info: [] })
-const networkInfo = ref({ network_info: {} })
-const processInfo = ref({ processes: [], total_processes: 0 })
-const gpuInfo = ref({ gpu_available: false, gpu_info: [], message: '' })
-
-// 进程监控参数
-const processSortBy = ref('cpu_percent')
-const processLimit = ref('10')
-
-// 工具函数
-const formatBytes = (bytes) => {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-}
-
-// API调用函数
-const fetchSystemOverview = async () => {
-  try {
-    const response = await monitorApi.getSystemOverview()
-    console.log('系统概览API响应:', response)
-    if (response.code === 200 && response.data) {
-      systemOverview.value = response.data
-      console.log('系统概览数据:', systemOverview.value)
-    }
-  } catch (error) {
-    console.error('获取系统概览失败:', error)
-  }
-}
-
-const fetchCpuInfo = async () => {
-  try {
-    const response = await monitorApi.getCpuMonitor()
-    console.log('CPU监控API响应:', response)
-    if (response.code === 200 && response.data) {
-      cpuInfo.value = response.data
-      console.log('CPU数据:', cpuInfo.value)
-    }
-  } catch (error) {
-    console.error('获取CPU信息失败:', error)
-  }
-}
-
-const fetchMemoryInfo = async () => {
-  try {
-    const response = await monitorApi.getMemoryMonitor()
-    console.log('内存监控API响应:', response)
-    if (response.code === 200 && response.data) {
-      memoryInfo.value = response.data
-      console.log('内存数据:', memoryInfo.value)
-    }
-  } catch (error) {
-    console.error('获取内存信息失败:', error)
-  }
-}
-
-const fetchDiskInfo = async () => {
-  try {
-    const response = await monitorApi.getDiskMonitor()
-    if (response.code === 200 && response.data) {
-      diskInfo.value = response.data
-    }
-  } catch (error) {
-    console.error('获取磁盘信息失败:', error)
-  }
-}
-
-const fetchNetworkInfo = async () => {
-  try {
-    const response = await monitorApi.getNetworkMonitor()
-    if (response.code === 200 && response.data) {
-      networkInfo.value = response.data
-    }
-  } catch (error) {
-    console.error('获取网络信息失败:', error)
-  }
-}
-
-const fetchProcessInfo = async () => {
-  try {
-    const response = await monitorApi.getProcessMonitor({
-      limit: parseInt(processLimit.value),
-      sort_by: processSortBy.value
-    })
-    if (response.code === 200 && response.data) {
-      processInfo.value = response.data
-    }
-  } catch (error) {
-    console.error('获取进程信息失败:', error)
-  }
-}
-
-const fetchGpuInfo = async () => {
-  try {
-    const response = await monitorApi.getGpuMonitor()
-    if (response.code === 200 && response.data) {
-      gpuInfo.value = response.data
-    }
-  } catch (error) {
-    console.error('获取GPU信息失败:', error)
-  }
-}
-
-// 刷新所有数据
-const refreshAllData = async () => {
-  loading.value = true
-  try {
-    await Promise.all([
-      fetchSystemOverview(),
-      fetchCpuInfo(),
-      fetchMemoryInfo(),
-      fetchDiskInfo(),
-      fetchNetworkInfo(),
-      fetchProcessInfo(),
-      fetchGpuInfo()
-    ])
-    lastUpdateTime.value = new Date().toLocaleString()
-  } catch (error) {
-    console.error('刷新数据失败:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-// 自动刷新控制
-const toggleAutoRefresh = () => {
-  if (autoRefresh.value) {
-    startAutoRefresh()
-  } else {
-    stopAutoRefresh()
-  }
-}
-
-const startAutoRefresh = () => {
-  if (refreshTimer) {
-    clearInterval(refreshTimer)
-  }
-  refreshTimer = setInterval(() => {
-    refreshAllData()
-  }, refreshInterval.value)
-}
-
-const stopAutoRefresh = () => {
-  if (refreshTimer) {
-    clearInterval(refreshTimer)
-    refreshTimer = null
-  }
-}
-
-// 进程监控事件处理
-const updateProcessSort = (sortBy) => {
-  processSortBy.value = sortBy
-  fetchProcessInfo()
-}
-
-const updateProcessLimit = (limit) => {
-  processLimit.value = limit
-  fetchProcessInfo()
-}
-
-// 生命周期
-onMounted(() => {
-  refreshAllData()
-  if (autoRefresh.value) {
-    startAutoRefresh()
-  }
-})
-
-onUnmounted(() => {
-  stopAutoRefresh()
-})
-</script>
-
 <style scoped>
-.system-monitor-container {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+.dashboard {
+  width: 100%;
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
+/* 统计卡片增强样式 */
+.cursor-pointer {
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
+.cursor-pointer:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
 
-  to {
-    transform: rotate(360deg);
+/* 响应式动画优化 */
+@media (prefers-reduced-motion: reduce) {
+  .cursor-pointer {
+    transition: none;
   }
+}
+
+/* 增强卡片视觉效果 */
+.el-card {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.el-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 </style>

@@ -2,7 +2,7 @@
 import { ElConfigProvider } from 'element-plus'
 import { useElementPlusLocale } from '@/composables/useElementPlusLocale'
 import { useRoute } from 'vue-router'
-import { computed } from 'vue'
+import { computed, nextTick, watch } from 'vue'
 import Layout from './components/layout/index.vue'
 import GlobalLoading from '@/components/common/GlobalLoading.vue'
 import RequestLoading from '@/components/common/RequestLoading.vue'
@@ -18,6 +18,11 @@ const route = useRoute()
 // 判断是否为后台管理页面
 const isAdminPage = computed(() => {
   return route.path.startsWith('/admin')
+})
+
+const reqShosw = computed(() => {
+  console.log((requestLoadingStore.isLoading && !route.path.startsWith('/admin')))
+  return (requestLoadingStore.isLoading && !route.path.startsWith('/admin'))
 })
 
 // 获取加载状态
@@ -39,7 +44,8 @@ const requestLoadingStore = useRequestLoadingStore()
     <GlobalLoading :is-loading="loadingStore.isLoading" :show-progress="loadingStore.showProgress" />
 
     <!-- 网络请求加载动画 -->
-    <!-- <RequestLoading v-show="false" /> -->
+    <RequestLoading v-if="reqShosw" />
+
   </ElConfigProvider>
 </template>
 
