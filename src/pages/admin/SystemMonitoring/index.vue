@@ -56,11 +56,11 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { monitorApi } from '@/api/system_file'
 
 // 导入子组件
-import CpuMonitor from '@/components/pages/admin/dashboard/CpuMonitor.vue'
-import MemoryMonitor from '@/components/pages/admin/dashboard/MemoryMonitor.vue'
-import DiskMonitor from '@/components/pages/admin/dashboard/DiskMonitor.vue'
-import SystemStatus from '@/components/pages/admin/dashboard/SystemStatus.vue'
-import ProcessMonitor from '@/components/pages/admin/dashboard/ProcessMonitor.vue'
+import CpuMonitor from '@/components/pages/admin/SystemMonitoring/CpuMonitor.vue'
+import MemoryMonitor from '@/components/pages/admin/SystemMonitoring/MemoryMonitor.vue'
+import DiskMonitor from '@/components/pages/admin/SystemMonitoring/DiskMonitor.vue'
+import SystemStatus from '@/components/pages/admin/SystemMonitoring/SystemStatus.vue'
+import ProcessMonitor from '@/components/pages/admin/SystemMonitoring/ProcessMonitor.vue'
 
 // 响应式数据
 const loading = ref(false)
