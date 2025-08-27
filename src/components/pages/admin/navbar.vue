@@ -1,13 +1,8 @@
 <script setup lang="ts">
 import serverConfig, { adminMenuItems } from '@/configs';
-import { useUserStore } from '@/stores/auth/user';
 import type { AdminHeader } from '@/types/factory';
-import { storeToRefs } from 'pinia';
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-const store = useUserStore()
-
-const { userInfo } = storeToRefs(store)
 
 interface Props {
   isCollapse: boolean
@@ -42,13 +37,6 @@ function handleMenuClick(path: string) {
 // 监听路由变化更新
 watch(() => route.path, () => {
   // 这里不用手动赋值，computed 会自动更新 activeMenu
-})
-
-onMounted(() => {
-  // 登录拦截
-  if (!userInfo.value) {
-    router.push('/auth/login')
-  }
 })
 </script>
 

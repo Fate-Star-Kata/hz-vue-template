@@ -1,9 +1,16 @@
 <!-- 关闭这个页面 Motion 组件的所有ts检测 -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { Motion } from 'motion-v'
 import AdminHeader from '@/components/pages/admin/header.vue'
 import AdminNavbar from '@/components/pages/admin/navbar.vue'
+import { useUserStore } from '@/stores/auth/user'
+import { storeToRefs } from 'pinia'
+import router from '@/router'
+
+const store = useUserStore()
+
+const { userInfo } = storeToRefs(store)
 
 // 侧边栏折叠状态
 const isCollapse = ref(false)
@@ -50,27 +57,12 @@ const cardVariants = {
   transition: { duration: 0.4, ease: ['easeOut'] }
 }
 
-const statsCardVariants = {
-  initial: { opacity: 0, y: 40, scale: 0.9 },
-  animate: { opacity: 1, y: 0, scale: 1 },
-  whileHover: {
-    scale: 1.05,
-    y: -8,
-    transition: { duration: 0.3, ease: ['easeOut'] }
-  },
-  transition: { duration: 0.5, ease: ['easeOut'] }
-}
-
-const iconVariants = {
-  initial: { scale: 0, rotate: -180 },
-  animate: { scale: 1, rotate: 0 },
-  whileHover: {
-    scale: 1.2,
-    rotate: 10,
-    transition: { duration: 0.2, ease: ['easeOut'] }
-  },
-  transition: { duration: 0.6, delay: 0.3, ease: ['easeOut'] }
-}
+onMounted(() => {
+  // 登录拦截
+  if (!userInfo.value) {
+    router.push('/auth/login')
+  }
+})
 </script>
 
 
